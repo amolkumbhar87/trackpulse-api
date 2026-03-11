@@ -1,0 +1,54 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Node modules (web & mobile)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Build outputs
+dist/
+build/
+.next/
+.nuxt/
+
+# Expo (mobile)
+.expo/
+.expo-shared/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# C# / .NET (API)
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.sln.docstates
+packages/
+*.nupkg
+.msbuild.log
+
+# Logs
+*.log
+logs/
+
+# Misc
+.git/
