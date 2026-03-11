@@ -9,7 +9,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy solution and project files
-COPY ["TrackPulse.sln", "./"]
+COPY ["TrackPulse.slnx", "./"]
 COPY ["TrackPulse.API.csproj", "./"]
 
 # Restore dependencies
