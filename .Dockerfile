@@ -1,33 +1,36 @@
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
+# Use the official .NET 10 SDK image as the base image
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy solution and project files
-# COPY ["TrackPulse.slnx", "./"]
+COPY ["TrackPulse.slnx", "./"]
 COPY ["TrackPulse.API.csproj", "./"]
 
 # Restore dependencies
-RUN dotnet restore "TrackPulse.API.csproj"
+RUN dotnet restore "TrackPulse.slnx"
 
 # Copy the rest of the code
 COPY . .
 
 # Build the API project
-WORKDIR "/src"
 RUN dotnet build "TrackPulse.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+# Publish the application
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-WORKDIR "/src"
+WORKDIR /src
 RUN dotnet publish "TrackPulse.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-FROM base AS final
+# Runtime stage - use ASP.NET runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
+EXPOSE 8080
+EXPOSE 8443
+
+# Copy published application from publish stage
 COPY --from=publish /app/publish .
+
+
+# Run the application
 ENTRYPOINT ["dotnet", "TrackPulse.API.dll"]
