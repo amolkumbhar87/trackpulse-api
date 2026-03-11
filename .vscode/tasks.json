@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/api/TrackPulse.API/TrackPulse.API.csproj"
+        "${workspaceFolder}/TrackPulse.API.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

@@ -10,25 +10,21 @@ WORKDIR /src
 
 # Copy solution and project files
 COPY ["TrackPulse.sln", "./"]
-COPY ["api/TrackPulse.API/TrackPulse.API.csproj", "api/TrackPulse.API/"]
-COPY ["api/TrackPulse.DataModels/TrackPulse.DataModels.csproj", "api/TrackPulse.DataModels/"]
-COPY ["api/TrackPulse.Interfaces/TrackPulse.Interfaces.csproj", "api/TrackPulse.Interfaces/"]
-COPY ["api/TrackPulse.Repository/TrackPulse.Repository.csproj", "api/TrackPulse.Repository/"]
-COPY ["api/TrackPulse.Services/TrackPulse.Services.csproj", "api/TrackPulse.Services/"]
+COPY ["TrackPulse.API.csproj", "./"]
 
 # Restore dependencies
-RUN dotnet restore "TrackPulse.sln"
+RUN dotnet restore "TrackPulse.slnx"
 
 # Copy the rest of the code
 COPY . .
 
 # Build the API project
-WORKDIR "/src/api/TrackPulse.API"
+WORKDIR "/src"
 RUN dotnet build "TrackPulse.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-WORKDIR "/src/api/TrackPulse.API"
+WORKDIR "/src"
 RUN dotnet publish "TrackPulse.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final

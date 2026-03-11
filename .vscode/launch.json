@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "buildTrackPulseAPI",
-            "program": "${workspaceFolder}/api/TrackPulse.API/bin/Debug/net10.0/TrackPulse.API.dll",
+            "program": "${workspaceFolder}/bin/Debug/net10.0/TrackPulse.API.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
