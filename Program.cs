@@ -1,4 +1,7 @@
+using System.Data;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +20,31 @@ builder.Services.AddCors(options =>
     .AllowCredentials());
 });
 
+// builder.Services.AddScoped<IDbConnection>(sp =>
+// {
+//     var conn = new NpgsqlConnection(
+//         builder.Configuration.GetConnectionString("DefaultConnection"));
+//     conn.Open();
+//     return conn;
+// });
+
+// EF Core
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions => npgsqlOptions.CommandTimeout(30)
+    ));
+
+// Dapper
+builder.Services.AddSingleton<DapperContext>();
+
+// Repositories
+builder.Services.AddScoped<IHorseRepository, HorseRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<JockeyRepository>();
+builder.Services.AddScoped<BetRepository>();
+builder.Services.AddScoped<OddsRepository>();
+builder.Services.AddScoped<IRaceCardRepository, RaceCardRepository>();
 
 var app = builder.Build();
 
