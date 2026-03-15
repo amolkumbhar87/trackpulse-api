@@ -1,8 +1,12 @@
+using DotNetEnv;
 using System.Data;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
+
+// Load environment variables from .env file
+Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -29,9 +33,10 @@ builder.Services.AddCors(options =>
 // });
 
 // EF Core
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
+        connectionString,
         npgsqlOptions => npgsqlOptions.CommandTimeout(30)
     ));
 
@@ -45,6 +50,9 @@ builder.Services.AddScoped<JockeyRepository>();
 builder.Services.AddScoped<BetRepository>();
 builder.Services.AddScoped<OddsRepository>();
 builder.Services.AddScoped<IRaceCardRepository, RaceCardRepository>();
+builder.Services.AddScoped<IRaceRepository, RaceRepository>();
+builder.Services.AddScoped<IRaceHorseRepository, RaceHorseRepository>();
+builder.Services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBase<>));
 
 var app = builder.Build();
 

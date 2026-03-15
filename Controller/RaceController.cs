@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
+[Route("api/[controller]")]
 public class RaceController : ControllerBase
 {
 
@@ -18,7 +19,15 @@ public class RaceController : ControllerBase
         _raceHorseRepository = raceHorseRepository;
     }
 
-    [HttpPost("races/parse-html")]
+    // [HttpGet("races/{cityName}/{raceDate}")]
+    [HttpGet("races")]
+    public async Task<IActionResult> GetRaceByCityAndDateAsync(string cityName, string raceDate)
+    {
+        var races = await _raceRepository.GetRaceByCityAndDateAsync(cityName, raceDate);
+        return Ok(races);
+    }
+
+    [HttpPost("parse-html")]
     // [Authorize(Roles = "Admin")]
     public async Task<IActionResult> ParseAndImport(IFormFile file, [FromQuery] int raceDayId)
     {

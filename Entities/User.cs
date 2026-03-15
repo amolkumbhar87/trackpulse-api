@@ -1,3 +1,4 @@
+    
 // User.cs
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -31,6 +32,10 @@ public class User
 
     [Column("last_login_at")]
     public DateTime? LastLoginAt { get; set; }
+
+    [Column("mobile_number")]
+    [MaxLength(20)]
+    public string MobileNumber { get; set; }
 }
 
 

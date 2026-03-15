@@ -1,3 +1,4 @@
+    
 using Microsoft.EntityFrameworkCore;
 public class UserRepository : IUserRepository
 {
@@ -7,6 +8,11 @@ public class UserRepository : IUserRepository
     public async Task<User> GetByUsernameAsync(string username)
     {
         return await _db.Users.FirstOrDefaultAsync(u => u.Username == username);
+    }
+
+    public async Task<User> GetByMobileNumberAsync(string mobileNumber)
+    {
+        return await _db.Users.FirstOrDefaultAsync(u => u.MobileNumber == mobileNumber);
     }
 
     public async Task<User> CreateAsync(User user)

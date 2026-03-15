@@ -1,5 +1,3 @@
-
-
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -11,6 +9,15 @@ public class UserController : ControllerBase
     public UserController(IUserRepository userRepository)
     {
         _userRepository = userRepository;
+    }
+
+    [HttpPost("authenticate")]
+    public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequest request)
+    {
+        var user = await _userRepository.GetByMobileNumberAsync(request.MobileNumber);
+        // if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        //     return Unauthorized("Invalid mobile number or password.");
+        return Ok(user);
     }
 
     // [HttpPost("users/register")]

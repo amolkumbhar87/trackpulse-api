@@ -8,7 +8,7 @@ public class DapperContext
 
     public DapperContext(IConfiguration configuration)
     {
-        _connectionString = configuration.GetConnectionString("DefaultConnection")!;
+        _connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? configuration.GetConnectionString("DefaultConnection")!;
     }
 
     public IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);
