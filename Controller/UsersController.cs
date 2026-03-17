@@ -1,22 +1,28 @@
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/users")]
-public class UserController : ControllerBase
+[Route("api/[controller]")]
+public class UsersController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
 
-    public UserController(IUserRepository userRepository)
+    public UsersController(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
 
     [HttpPost("authenticate")]
-    public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequest request)
+    public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequestDto request)
     {
+        if (request == null || string.IsNullOrEmpty(request.MobileNumber) || string.IsNullOrEmpty(request.Password))
+        {
+            return BadRequest("Mobile and password are required");
+        }
+
         var user = await _userRepository.GetByMobileNumberAsync(request.MobileNumber);
-        // if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-        //     return Unauthorized("Invalid mobile number or password.");
+        //|| !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)
+        if (user == null )
+            return Unauthorized("Invalid mobile number or password.");
         return Ok(user);
     }
 
