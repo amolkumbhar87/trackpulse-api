@@ -17,11 +17,12 @@ builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost",
-    policy => policy.WithOrigins("http://localhost:5173")
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowCredentials());
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .WithOrigins("https://trackpulse-1w8oxsbtz-amolkumbhar87s-projects.vercel.app")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 // builder.Services.AddScoped<IDbConnection>(sp =>
