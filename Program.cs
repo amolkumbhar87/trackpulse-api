@@ -17,12 +17,20 @@ builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy => policy
-            .WithOrigins("https://trackpulse-1w8oxsbtz-amolkumbhar87s-projects.vercel.app")
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .SetIsOriginAllowed(origin => origin.Contains("vercel.app"))
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials());
+            .AllowCredentials();
+    });
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.None; // required for cross-domain
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS only
 });
 
 // builder.Services.AddScoped<IDbConnection>(sp =>
@@ -58,7 +66,7 @@ builder.Services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBa
 var app = builder.Build();
 
 
-app.UseCors("AllowLocalhost");
+app.UseCors("AllowFrontend"); 
 
 
 app.MapHub<OddsHub>("/OddsHub");
