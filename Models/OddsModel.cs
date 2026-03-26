@@ -1,9 +1,9 @@
 public class OddsModel
 {
-    public string RaceId { get; set; }
-    public string WinOdds { get; set; }
+    public int RaceId { get; set; }
+    public decimal WinOdds { get; set; }
 
-    public string PlaceOdds { get; set; }
+    public decimal PlaceOdds { get; set; }
 
     public string HorseName { get; set; }
 

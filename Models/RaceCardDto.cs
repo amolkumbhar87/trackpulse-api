@@ -13,6 +13,9 @@ public class RaceCardDto
     public decimal Weight { get; set; }
     public decimal Rating { get; set; }
     public string HorseName { get; set; }
+    public int HorseId { get; set; }
     public int Age { get; set; }
     public string Color { get; set; }
+    public decimal WinOdds { get; set; }
+    public decimal PlaceOdds { get; set; }
 }

@@ -12,13 +12,20 @@ public class RaceController : ControllerBase
     private readonly IHorseRepository _horseRepository; 
     private readonly IRaceHorseRepository _raceHorseRepository;
 
-    public RaceController(IRaceRepository raceRepository, IHorseRepository horseRepository, IRaceHorseRepository raceHorseRepository)
+    private readonly IRaceCardRepository _raceCardRepository;
+
+    public RaceController(IRaceRepository raceRepository, IHorseRepository horseRepository, 
+    IRaceHorseRepository raceHorseRepository,
+    IRaceCardRepository raceCardRepository
+    )
     {
         _raceRepository = raceRepository;
         _horseRepository = horseRepository;
         _raceHorseRepository = raceHorseRepository;
+        _raceCardRepository = raceCardRepository;
     }
 
+    
     // [HttpGet("races/{cityName}/{raceDate}")]
     [HttpGet("races")]
     public async Task<IActionResult> GetRaceByCityAndDateAsync(string cityName, string raceDate)
@@ -26,6 +33,21 @@ public class RaceController : ControllerBase
         var races = await _raceRepository.GetRaceByCityAndDateAsync(cityName, raceDate);
         return Ok(races);
     }
+
+    [HttpGet("races-by-date")]
+    public async Task<IActionResult> GetRaceByDateAsync(string raceDate)
+    {
+        var races = await _raceCardRepository.GetRaceByDateAsync(raceDate);
+        return Ok(races);
+    }
+
+    [HttpGet("races-by-id")]
+    public async Task<IActionResult> GetRaceByIdAsync(int raceId)
+    {
+        var races = await _raceCardRepository.GetRaceByIdAsync(raceId);
+        return Ok(races);
+    }
+
 
     [HttpPost("parse-html")]
     // [Authorize(Roles = "Admin")]

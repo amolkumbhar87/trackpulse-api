@@ -6,4 +6,5 @@ public interface IRaceRepository
     Task<Race> CreateAsync(Race race);
 
     Task<IEnumerable<dynamic>> GetRaceByCityAndDateAsync(string cityName, string raceDate);
+
 }

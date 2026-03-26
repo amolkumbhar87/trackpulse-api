@@ -62,4 +62,25 @@ public class RaceRepository : IRaceRepository
         return race;
     }
 
+    // public async Task<IEnumerable<dynamic>> GetRaceByDateAsync(string raceDate)
+    // {
+    //     using var conn = _dapper.CreateConnection();
+
+    //     const string sql = @"SELECT 
+    //                             r.*, 
+    //                             v.venue_name, 
+    //                             c.city_name, 
+    //                             rd.race_date
+    //                         FROM race_day rd
+    //                         JOIN venue v 
+    //                             ON v.venue_id = rd.venue_id
+    //                         JOIN city c 
+    //                             ON v.city_id = c.city_id
+    //                         JOIN race r 
+    //                             ON rd.race_day_id = r.race_day_id
+    //                                 WHERE rd.race_date = @RaceDate";
+    //     var races = await conn.QueryAsync(sql, new { RaceDate = raceDate });
+
+    //     return races;
+    // }
 }
