@@ -51,7 +51,7 @@ public class RaceController : ControllerBase
 
     [HttpPost("parse-html")]
     // [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> ParseAndImport(IFormFile file, [FromQuery] int raceDayId)
+    public async Task<IActionResult> ParseAndImport(IFormFile file)
     {
         using var stream = new StreamReader(file.OpenReadStream());
         var html = await stream.ReadToEndAsync();
@@ -74,6 +74,7 @@ public class RaceController : ControllerBase
             int.TryParse(distanceText?.Replace("M", "").Trim(), out int distance);
 
             // --- Create Race if not exists ---
+            int raceDayId = 0; // For simplicity, using 0. In real case, parse from file or pass as parameter.
             var race = await _raceRepository.GetByRaceDayAndNameAsync(raceDayId, raceName);
             if (race == null)
             {

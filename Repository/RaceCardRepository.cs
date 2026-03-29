@@ -36,10 +36,10 @@ ORDER BY r.start_time;";
                 r.race_id           AS RaceId,                
                 r.race_name         AS RaceName,
                 rh.race_horse_id    AS RaceHorseId,
+                h.horse_id       AS HorseId,
                 h.horse_name        AS HorseName,
                 h.age               AS Age,
                 h.color             AS Color,
-                h.horse_id          AS HorseId,
                 h.gender            AS Gender,
                 j.name              AS JockeyName,
                 lo.win_odds         AS WinOdds,
@@ -57,7 +57,8 @@ ORDER BY r.start_time;";
                 LIMIT 1
             ) lo ON TRUE
             WHERE r.race_id=@RaceId";
-return await conn.QueryAsync<RaceCardDto>(sql, new { RaceId = raceId });
+var result= await conn.QueryAsync<RaceCardDto>(sql, new { RaceId = raceId });
+return result;
     }
 
     public async Task<IEnumerable<RaceCardDto>> GetTodaysRaceCardAsync()

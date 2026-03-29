@@ -12,7 +12,7 @@ public class RaceDay
     public int VenueId { get; set; }
 
     [Column("race_date")]
-    public DateOnly RaceDate { get; set; }
+    public DateTime? RaceDate { get; set; }
 
     [Column("status")]
     public string Status { get; set; } = "Upcoming";
@@ -21,5 +21,8 @@ public class RaceDay
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public Venue Venue { get; set; }
+
+[Column("city_name")]
+    public string CityName  { get; set; } // Convenience property to access city name
     public ICollection<Race> Races { get; set; }
 }

@@ -24,7 +24,7 @@ public class Race
     public int? DistanceMeters { get; set; }
 
     [Column("start_time")]
-    public TimeOnly? StartTime { get; set; }
+    public DateTime? StartTime { get; set; }
 
     [Column("status")]
     public string Status { get; set; } = "Upcoming";

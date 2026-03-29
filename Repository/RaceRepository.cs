@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Dapper;
+using System.Globalization;
 public class RaceRepository : IRaceRepository
 {
     private readonly AppDbContext _db;
@@ -23,23 +24,22 @@ public class RaceRepository : IRaceRepository
         using var conn = _dapper.CreateConnection();
 
         const string sql = @"SELECT 
-                                r.*, 
-                                v.venue_name, 
-                                c.city_name, 
+                                r.*, rd.city_name, 
                                 rd.race_date
                             FROM race_day rd
-                            JOIN venue v 
-                                ON v.venue_id = rd.venue_id
-                            JOIN city c 
-                                ON v.city_id = c.city_id
                             JOIN race r 
                                 ON rd.race_day_id = r.race_day_id
-                                    WHERE c.city_name = @CityName
-                                    ";
-                                    // WHERE c.city_name = @CityName  AND rd.race_date = @RaceDate
+                                    WHERE rd.city_name = @CityName
+                                    AND rd.race_date = @RaceDate";
 
         //var races = await conn.QueryAsync(sql, new { CityName = cityName});
-        var races = await conn.QueryAsync(sql, new { CityName = cityName});
+        var parsedDate = DateTime.ParseExact(
+    raceDate,
+    "yyyy-MM-dd",
+    CultureInfo.InvariantCulture
+).Date;
+
+        var races = await conn.QueryAsync(sql, new { CityName = cityName, RaceDate = parsedDate });
 
         return races;
     }
@@ -61,26 +61,4 @@ public class RaceRepository : IRaceRepository
         await _db.SaveChangesAsync();
         return race;
     }
-
-    // public async Task<IEnumerable<dynamic>> GetRaceByDateAsync(string raceDate)
-    // {
-    //     using var conn = _dapper.CreateConnection();
-
-    //     const string sql = @"SELECT 
-    //                             r.*, 
-    //                             v.venue_name, 
-    //                             c.city_name, 
-    //                             rd.race_date
-    //                         FROM race_day rd
-    //                         JOIN venue v 
-    //                             ON v.venue_id = rd.venue_id
-    //                         JOIN city c 
-    //                             ON v.city_id = c.city_id
-    //                         JOIN race r 
-    //                             ON rd.race_day_id = r.race_day_id
-    //                                 WHERE rd.race_date = @RaceDate";
-    //     var races = await conn.QueryAsync(sql, new { RaceDate = raceDate });
-
-    //     return races;
-    // }
 }

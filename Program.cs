@@ -19,16 +19,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy
-            .SetIsOriginAllowed(origin => origin.Contains("vercel.app"))
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        // policy
+        //     .SetIsOriginAllowed(origin => origin.Contains("vercel.app"))
+        //     .AllowAnyHeader()
+        //     .AllowAnyMethod()
+        //     .AllowCredentials();
 
-        // policy.AllowAnyHeader()
-        //       .AllowAnyMethod()
-        //       .AllowCredentials()
-        //       .SetIsOriginAllowed(_ => true);
+        policy.AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()
+              .SetIsOriginAllowed(_ => true);
     });
 });
 
@@ -60,12 +60,13 @@ builder.Services.AddSingleton<DapperContext>();
 // Repositories
 builder.Services.AddScoped<IHorseRepository, HorseRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<JockeyRepository>();
+builder.Services.AddScoped<IJockeyRepository, JockeyRepository>();
 builder.Services.AddScoped<BetRepository>();
 builder.Services.AddScoped<OddsRepository>();
 builder.Services.AddScoped<IRaceCardRepository, RaceCardRepository>();
 builder.Services.AddScoped<IRaceRepository, RaceRepository>();
 builder.Services.AddScoped<IRaceHorseRepository, RaceHorseRepository>();
+builder.Services.AddScoped<IRaceDayRepository, RaceDayRepository>();
 builder.Services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBase<>));
 
 var app = builder.Build();

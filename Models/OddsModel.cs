@@ -7,7 +7,7 @@ public class OddsModel
 
     public string HorseName { get; set; }
 
-    public string HorseId { get; set; }
+    public string RaceHorseId { get; set; }
     public string RaceDate { get; set; }
 
     public string RaceTime { get; set; }

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
 // EF — JockeyRepository.cs
-public class JockeyRepository
+public class JockeyRepository :IJockeyRepository
 {
     private readonly AppDbContext _db;
     public JockeyRepository(AppDbContext db) => _db = db;
