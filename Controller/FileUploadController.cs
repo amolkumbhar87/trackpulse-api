@@ -123,4 +123,33 @@ var cityName = result.Item3;
             });
                 return raceDay.RaceDayId;
     }
+
+    // Parses "6y b g" → (6, "Bay", "Gelding")
+    private (int? age, string color, string gender) ParseDesc(string desc)
+    {
+        // e.g. "6y b g" or "4y ch f" or "5y dkb h"
+        var parts = desc.ToLower().Split(' ');
+
+        int? age = null;
+        if (parts[0].EndsWith("y"))
+            int.TryParse(parts[0].Replace("y", ""), out int a);
+        age = int.TryParse(parts[0].Replace("y", ""), out int parsed) ? parsed : null;
+
+        var colorMap = new Dictionary<string, string>
+    {
+        { "b", "Bay" }, { "ch", "Chestnut" }, { "dkb", "Dark Bay" },
+        { "gr", "Grey" }, { "br", "Brown" }, { "bl", "Black" }
+    };
+
+        var genderMap = new Dictionary<string, string>
+    {
+        { "g", "Gelding" }, { "c", "Colt" }, { "f", "Filly" },
+        { "h", "Horse" }, { "m", "Mare" }
+    };
+
+        string color = parts.Length > 1 && colorMap.ContainsKey(parts[1]) ? colorMap[parts[1]] : null;
+        string gender = parts.Length > 2 && genderMap.ContainsKey(parts[2]) ? genderMap[parts[2]] : null;
+
+        return (age, color, gender);
+    }
 }

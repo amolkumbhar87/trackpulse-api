@@ -61,4 +61,13 @@ public class RaceRepository : IRaceRepository
         await _db.SaveChangesAsync();
         return race;
     }
+
+    public async Task UpdateStatusAsync(int raceId, string status)
+{
+    const string sql = """
+        UPDATE race SET status = @Status WHERE id = @RaceId
+        """;
+    using var conn = _dapper.CreateConnection();
+    await conn.ExecuteAsync(sql, new { RaceId = raceId, Status = status });
+}
 }
