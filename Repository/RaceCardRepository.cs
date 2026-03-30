@@ -13,16 +13,25 @@ public class RaceCardRepository : IRaceCardRepository
         const string sql = @"SELECT  
     r.race_id AS Id,
     r.race_name AS Name,
-    CONCAT(v.venue_name, ' ', TO_CHAR(r.start_time, 'HH24:MI')) AS Venue,
+    CONCAT(rd.city_name , ' ', TO_CHAR(r.start_time, 'HH24:MI')) AS Venue,
     TO_CHAR(r.start_time, 'HH24:MI') AS Time,
-    COUNT(rh.horse_id) AS Horses
+    COUNT(rh.horse_id) AS Horses,
+    r.status AS Status
 FROM race_day rd
 JOIN venue v        ON v.venue_id = rd.venue_id
 JOIN race r         ON rd.race_day_id = r.race_day_id
 JOIN race_horse rh  ON rh.race_id = r.race_id
 GROUP BY 
-    r.race_id, r.race_name, v.venue_name, r.start_time
-ORDER BY r.start_time;";
+    r.race_id, r.race_name, v.venue_name, r.start_time, r.status, rd.city_name
+ORDER BY 
+    CASE 
+        WHEN r.status = 'Live' THEN 1
+        WHEN r.status = 'Upcoming' THEN 2
+        WHEN r.status = 'Completed' THEN 3
+        WHEN r.status = 'Cancelled' THEN 4
+        ELSE 5
+    END,
+    r.start_time;";
 
         // return await conn.QueryAsync<RaceCardDto>(sql, new { RaceDate = raceDate });
         return await conn.QueryAsync<Races>(sql);

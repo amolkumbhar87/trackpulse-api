@@ -19,13 +19,16 @@ public class RaceController : ControllerBase
 
     public RaceController(IRaceRepository raceRepository, IHorseRepository horseRepository, 
     IRaceHorseRepository raceHorseRepository,
-    IRaceCardRepository raceCardRepository
+    IRaceCardRepository raceCardRepository,
+    IHubContext<OddsHub> hubContext
     )
     {
         _raceRepository = raceRepository;
         _horseRepository = horseRepository;
         _raceHorseRepository = raceHorseRepository;
         _raceCardRepository = raceCardRepository;
+        _hubContext = hubContext;
+
     }
 
     

@@ -39,7 +39,7 @@ public class RaceRepository : IRaceRepository
     CultureInfo.InvariantCulture
 ).Date;
 
-        var races = await conn.QueryAsync(sql, new { CityName = cityName, RaceDate = parsedDate });
+        var races = await conn.QueryAsync(sql, new { CityName = cityName.ToUpper(), RaceDate = parsedDate });
 
         return races;
     }
@@ -64,9 +64,7 @@ public class RaceRepository : IRaceRepository
 
     public async Task UpdateStatusAsync(int raceId, string status)
 {
-    const string sql = """
-        UPDATE race SET status = @Status WHERE id = @RaceId
-        """;
+    const string sql = @"UPDATE race SET status = @Status WHERE race_id = @RaceId";
     using var conn = _dapper.CreateConnection();
     await conn.ExecuteAsync(sql, new { RaceId = raceId, Status = status });
 }

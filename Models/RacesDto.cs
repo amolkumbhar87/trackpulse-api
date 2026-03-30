@@ -9,4 +9,6 @@ public class Races
     public string Time {get;set;}
     
     public int Horses { get; set; }
+
+    public string Status { get; set; }
 }
