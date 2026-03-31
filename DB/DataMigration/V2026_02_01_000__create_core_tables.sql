@@ -1,0 +1,138 @@
+-- USERS
+CREATE TABLE trackpulse.users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    password_hash TEXT NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    is_active BOOLEAN NOT NULL,
+    session_token TEXT,
+    created_at TIMESTAMP NOT NULL,
+    last_login_at TIMESTAMP,
+    mobile_number VARCHAR(20)
+);
+
+-- CITY
+CREATE TABLE trackpulse.cities (
+    city_id SERIAL PRIMARY KEY,
+    city_name VARCHAR(100) NOT NULL,
+    state VARCHAR(100),
+    is_active BOOLEAN NOT NULL
+);
+
+-- VENUE
+CREATE TABLE trackpulse.venues (
+    venue_id SERIAL PRIMARY KEY,
+    city_id INT NOT NULL,
+    venue_name VARCHAR(150) NOT NULL,
+    is_active BOOLEAN NOT NULL,
+    FOREIGN KEY (city_id) REFERENCES cities(city_id)
+);
+
+-- RACE DAY
+CREATE TABLE trackpulse.race_days (
+    race_day_id SERIAL PRIMARY KEY,
+    venue_id INT NOT NULL,
+    race_date TIMESTAMP,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    city_name VARCHAR(100),
+    FOREIGN KEY (venue_id) REFERENCES venues(venue_id)
+);
+
+-- RACE
+CREATE TABLE trackpulse.races (
+    race_id SERIAL PRIMARY KEY,
+    race_day_id INT NOT NULL,
+    race_number INT NOT NULL,
+    race_name VARCHAR(150) NOT NULL,
+    race_type VARCHAR(50),
+    distance_meters INT,
+    start_time TIMESTAMP,
+    status VARCHAR(50) NOT NULL,
+    FOREIGN KEY (race_day_id) REFERENCES race_days(race_day_id)
+);
+
+-- HORSE
+CREATE TABLE trackpulse.horses (
+    horse_id SERIAL PRIMARY KEY,
+    horse_name VARCHAR(150) NOT NULL,
+    age INT,
+    gender VARCHAR(10),
+    color VARCHAR(50),
+    sire VARCHAR(100),
+    dam VARCHAR(100),
+    is_active BOOLEAN NOT NULL
+);
+
+-- JOCKEY
+CREATE TABLE trackpulse.jockeys (
+    jockey_id SERIAL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    license_no VARCHAR(100),
+    is_active BOOLEAN NOT NULL
+);
+
+-- RACE HORSE
+CREATE TABLE trackpulse.race_horses (
+    race_horse_id SERIAL PRIMARY KEY,
+    race_id INT NOT NULL,
+    horse_id INT NOT NULL,
+    jockey_id INT,
+    draw_number INT NOT NULL,
+    weight NUMERIC(10,2),
+    rating INT,
+    FOREIGN KEY (race_id) REFERENCES races(race_id),
+    FOREIGN KEY (horse_id) REFERENCES horses(horse_id),
+    FOREIGN KEY (jockey_id) REFERENCES jockeys(jockey_id)
+);
+
+-- ODDS
+CREATE TABLE trackpulse.odds (
+    odds_id SERIAL PRIMARY KEY,
+    race_horse_id INT NOT NULL,
+    win_odds NUMERIC(10,2),
+    place_odds NUMERIC(10,2),
+    updated_at TIMESTAMP NOT NULL,
+    updated_by INT NOT NULL,
+    FOREIGN KEY (race_horse_id) REFERENCES race_horses(race_horse_id)
+);
+
+-- BET
+CREATE TABLE trackpulse.bets (
+    bet_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    race_horse_id INT NOT NULL,
+    bet_type VARCHAR(50) NOT NULL,
+    amount NUMERIC(18,2) NOT NULL,
+    odds_at_bet NUMERIC(10,2) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    placed_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (race_horse_id) REFERENCES race_horses(race_horse_id)
+);
+
+-- BET TRANSACTION
+CREATE TABLE trackpulse.bet_transactions (
+    transaction_id SERIAL PRIMARY KEY,
+    bet_id INT NOT NULL,
+    user_id INT NOT NULL,
+    transaction_type VARCHAR(50) NOT NULL,
+    amount NUMERIC(18,2) NOT NULL,
+    payment_status VARCHAR(50) NOT NULL,
+    reference_no VARCHAR(100),
+    created_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (bet_id) REFERENCES bets(bet_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- RACE RESULT
+CREATE TABLE trackpulse.race_results (
+    result_id SERIAL PRIMARY KEY,
+    race_id INT NOT NULL,
+    race_horse_id INT NOT NULL,
+    finish_position INT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (race_id) REFERENCES races(race_id),
+    FOREIGN KEY (race_horse_id) REFERENCES race_horses(race_horse_id)
+);

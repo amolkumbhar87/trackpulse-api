@@ -10,6 +10,9 @@ public class Venue
     [Column("city_id")]
     public int CityId { get; set; }
 
+    [Column("city_name")]
+    public int CityName { get; set; }
+
     [Column("venue_name")]
     public string VenueName { get; set; }
 

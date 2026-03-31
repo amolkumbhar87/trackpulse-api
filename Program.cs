@@ -32,6 +32,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.SameSite = SameSiteMode.None; // required for cross-domain
@@ -49,10 +50,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 // EF Core
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        connectionString,
-        npgsqlOptions => npgsqlOptions.CommandTimeout(30)
-    ));
+    options.UseNpgsql(connectionString, npgsqlOptions => npgsqlOptions.CommandTimeout(30))
+           .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+    );
 
 // Dapper
 builder.Services.AddSingleton<DapperContext>();
@@ -106,6 +106,7 @@ app.MapGet("/weatherforecast", () =>
 
 
 app.MapControllers();
+app.ApplyDbMigrations(connectionString);
 
 app.Run();
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
