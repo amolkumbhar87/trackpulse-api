@@ -19,6 +19,8 @@ public class HorseRepository : IHorseRepository
             Age       = age,
             Color     = color,
             Gender    = gender,
+            Sire="",
+            Dam="",
             IsActive  = true
         };
 

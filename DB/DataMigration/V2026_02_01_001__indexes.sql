@@ -8,3 +8,7 @@ CREATE INDEX idx_race_horses_race_id ON trackpulse.race_horses(race_id);
 CREATE INDEX idx_odds_race_horse_id ON trackpulse.odds(race_horse_id);
 
 CREATE INDEX idx_races_race_day_id ON trackpulse.races(race_day_id);
+
+CREATE UNIQUE INDEX idx_city_state ON trackpulse.cities (city_name, state);
+
+CREATE UNIQUE INDEX idx_city_venue ON trackpulse.venues (city_id, venue_name);

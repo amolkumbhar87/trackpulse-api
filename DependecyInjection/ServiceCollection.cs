@@ -14,7 +14,7 @@ var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
 
         var evolve = new Evolve(connection, msg => logger.LogInformation(msg))
         {
-            Locations = new[] { "db/migrations" },
+            Locations = new[] { "DB/DataMigration" },
             IsEraseDisabled = true,
             MetadataTableName = "trackpulse_changelog"
         };

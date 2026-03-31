@@ -51,12 +51,7 @@ public class RaceRepository : IRaceRepository
 
         if (existingRace != null) return existingRace;
 
-        race = new Race
-        {
-            RaceDayId = race.RaceDayId,
-            RaceName = race.RaceName
-        };
-
+race.StartTime = DateTime.SpecifyKind(race.StartTime.Value, DateTimeKind.Utc);
         _db.Races.Add(race);
         await _db.SaveChangesAsync();
         return race;

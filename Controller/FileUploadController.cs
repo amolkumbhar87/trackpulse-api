@@ -11,15 +11,19 @@ public class FileUploadController : ControllerBase
     private readonly IRaceHorseRepository _raceHorseRepository;
 
     private readonly IRaceDayRepository _raceDayRepository;
+
+    private readonly IVenueRepository _venueRepository;
     public FileUploadController(IRaceRepository raceRepository, IHorseRepository horseRepository, 
     IJockeyRepository jockeyRepository, IRaceHorseRepository raceHorseRepository,
-    IRaceDayRepository raceDayRepository)
+    IRaceDayRepository raceDayRepository,
+    IVenueRepository venueRepository)
     {
         _raceRepository = raceRepository;
         _horseRepository = horseRepository;
         _jockeyRepository = jockeyRepository;
         _raceHorseRepository = raceHorseRepository;
         _raceDayRepository = raceDayRepository;
+        _venueRepository = venueRepository;
     }
 
     [HttpPost("parse-html")]
@@ -37,11 +41,12 @@ var parsedRaces = result.Item1;
 var raceDate = result.Item2;
 var cityName = result.Item3;
         var importedRaces = new List<RaceImportResult>();
-
+var venueList  = await _venueRepository.GetAllAsync();
         foreach (var parsedRace in parsedRaces)
         {
             //Create or get RaceDay (you'll need to determine the race day from context)
-            int raceDayId = await GetOrCreateRaceDayId(cityName: cityName, raceDate: raceDate); // Implement this based on your logic
+            var venue = venueList.FirstOrDefault(v => v.City.CityName.ToLower() == cityName.ToLower());
+            int raceDayId = await GetOrCreateRaceDayId(cityName, venue.VenueId, raceDate);
 
             // Check if race exists
             var race = await _raceRepository.GetByRaceDayAndNameAsync(raceDayId, parsedRace.RaceName);
@@ -85,6 +90,7 @@ var cityName = result.Item3;
                         RaceId = race.RaceId,
                         HorseId = horse.HorseId,
                         //TrainerId = trainer?.TrainerId,
+                        Position = parsedHorse.Position, // Position will be
                         JockeyId = jockeyId,
                         DrawNumber = parsedHorse.DrawNumber,
                         Rating = parsedHorse.Rating > 0 ? parsedHorse.Rating : null,
@@ -109,16 +115,15 @@ var cityName = result.Item3;
     }
 
     // Helper method to get or create RaceDay (implement based on your logic)
-    private async Task<int> GetOrCreateRaceDayId(string cityName, DateTime? raceDate=null)
+    private async Task<int> GetOrCreateRaceDayId(string cityName, int venueId, DateTime? raceDate=null)
     {
-        // You can extract date from the HTML or pass as parameter
-        // For now, using today's date or a default
-        
+
        
           var   raceDay = await _raceDayRepository.CreateAsync(new RaceDay
             {
                 RaceDate = raceDate,
                 CityName = cityName, // Set appropriate city name
+                VenueId = venueId,
                 Status = "Upcoming"
             });
                 return raceDay.RaceDayId;

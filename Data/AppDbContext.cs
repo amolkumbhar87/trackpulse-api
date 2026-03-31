@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("trackpulse");
+
         // Unique constraints
         modelBuilder.Entity<RaceDay>()
             .HasIndex(rd => new { rd.VenueId, rd.RaceDate }).IsUnique();

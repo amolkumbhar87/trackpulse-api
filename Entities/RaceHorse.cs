@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 // RaceHorse.cs
-[Table("race_horse")]
+[Table("race_horses")]
 public class RaceHorse
 {
     [Key, Column("race_horse_id")]
@@ -25,6 +25,10 @@ public class RaceHorse
 
     [Column("rating")]
     public int? Rating { get; set; }
+
+
+[Column("position")]
+    public int? Position { get; set; }
 
     public Race Race { get; set; }
     public Horse Horse { get; set; }

@@ -67,6 +67,7 @@ builder.Services.AddScoped<IRaceCardRepository, RaceCardRepository>();
 builder.Services.AddScoped<IRaceRepository, RaceRepository>();
 builder.Services.AddScoped<IRaceHorseRepository, RaceHorseRepository>();
 builder.Services.AddScoped<IRaceDayRepository, RaceDayRepository>();
+builder.Services.AddScoped<IVenueRepository, VenueRepository>();
 builder.Services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBase<>));
 
 var app = builder.Build();

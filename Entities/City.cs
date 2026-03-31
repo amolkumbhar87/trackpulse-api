@@ -2,7 +2,7 @@
 // City.cs
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-[Table("city")]
+[Table("cities")]
 public class City
 {
     [Key, Column("city_id")]

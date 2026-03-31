@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 // Bet.cs
-[Table("bet")]
+[Table("bets")]
 public class Bet
 {
     [Key, Column("bet_id")]
