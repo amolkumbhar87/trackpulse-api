@@ -20,30 +20,22 @@ public class UsersController : ControllerBase
         }
 
         var user = await _userRepository.GetByMobileNumberAsync(request.MobileNumber);
-        //|| !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)
-        if (user == null )
+        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return Unauthorized("Invalid mobile number or password.");
         return Ok(user);
     }
 
-    // [HttpPost("users/register")]
-    // public async Task<IActionResult> Register(UserRegisterDto dto)
-    // {
-    //     var existingUser = await _userRepository.GetByUsernameAsync(dto.Username);
-    //     if (existingUser != null) return BadRequest("Username already exists.");
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(UserDto userRequest)
+    {
+        var existingUser = await _userRepository.GetByUsernameAsync(userRequest.UserName);
+        if (existingUser != null) return BadRequest("Username already exists.");       
 
-    //     var user = new User
-    //     {
-    //         Username = dto.Username,
-    //         PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-    //         Role = "User"
-    //     };
+        var createdUser = await _userRepository.CreateAsync(userRequest);
+        return Ok(new { createdUser.UserId, createdUser.UserName });
+    }
 
-    //     var createdUser = await _userRepository.CreateAsync(user);
-    //     return Ok(new { createdUser.Id, createdUser.Username });
-    // }
-
-    [HttpGet("{username}")]
+    [HttpGet("username/{username}")]
     public async Task<IActionResult> GetByUsernameAsync(string username)
     {
         try
@@ -57,4 +49,33 @@ public class UsersController : ControllerBase
             return StatusCode(500, new { error = ex.Message, details = ex.InnerException?.Message });
         }
     }
+
+    [HttpGet("status/{status}")]
+    public async Task<IActionResult> GetUsersByStatusAsync(string status, [FromQuery]string? mobileNumber=null)
+    {
+        try
+        {
+            var users = await _userRepository.GetUsersByStatusAsync(status, mobileNumber);
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message, details = ex.InnerException?.Message });
+        }
+    }
+
+    [HttpPatch("status/{userId}")]
+    public async Task<IActionResult> UpdateUserStatusAsync(int userId, [FromBody] UpdateStatusRequest request)
+    {
+        try
+        {
+            var users = await _userRepository.UpdateUserStatusAsync(request.Status, userId);
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message, details = ex.InnerException?.Message });
+        }
+    }
 }
+            

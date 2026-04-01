@@ -12,3 +12,9 @@ CREATE INDEX idx_races_race_day_id ON trackpulse.races(race_day_id);
 CREATE UNIQUE INDEX idx_city_state ON trackpulse.cities (city_name, state);
 
 CREATE UNIQUE INDEX idx_city_venue ON trackpulse.venues (city_id, venue_name);
+
+CREATE INDEX idx_deposit_status      ON deposit_requests(status);
+
+CREATE INDEX idx_deposit_user        ON deposit_requests(user_id);
+
+CREATE INDEX idx_deposit_submitted   ON deposit_requests(submitted_at DESC);

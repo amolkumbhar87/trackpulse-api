@@ -9,8 +9,8 @@ public class User
     [Key, Column("user_id")]
     public int UserId { get; set; }
 
-    [Column("username")]
-    public string Username { get; set; }
+    [Column("user_name")]
+    public string UserName { get; set; }
 
     [Column("email")]
     public string Email { get; set; }
@@ -36,6 +36,9 @@ public class User
     [Column("mobile_number")]
     [MaxLength(20)]
     public string MobileNumber { get; set; }
+
+     [Column("status")]
+    public string Status { get; set; }
 }
 
 
