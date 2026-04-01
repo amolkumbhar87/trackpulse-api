@@ -1,7 +1,7 @@
 -- USERS
 CREATE TABLE IF NOT EXISTS trackpulse.users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL,
+    user_name VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL,
     password_hash TEXT NOT NULL,
     role VARCHAR(50) NOT NULL,
@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS trackpulse.users (
     session_token TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login_at TIMESTAMP,
-    mobile_number VARCHAR(20)
+    mobile_number VARCHAR(20),
+    status VARCHAR(50) NOT NULL
 );
 
 -- CITY

@@ -8,13 +8,13 @@ public class DepositRepository : IDepositRepository
     // User submits
     public async Task<int> CreateAsync(DepositRequest req)
     {
-        const string sql = """
-            INSERT INTO deposit_requests
+        const string sql = @"
+            INSERT INTO trackpulse.deposit_requests
                 (user_id, amount, payment_method, transaction_id, notes, screenshot_path)
             VALUES
                 (@UserId, @Amount, @PaymentMethod, @TransactionId, @Notes, @ScreenshotPath)
             RETURNING id
-            """;
+            ";
         using var conn = _ctx.CreateConnection();
         return await conn.ExecuteScalarAsync<int>(sql, req);
     }
@@ -36,9 +36,9 @@ public class DepositRepository : IDepositRepository
             where.Add("dr.submitted_at >= NOW() - INTERVAL '7 days'");
 
         var sql = $"""
-            SELECT dr.*, u.username AS name, u.mobile
-            FROM deposit_requests dr
-            JOIN users u ON u.id = dr.user_id
+            SELECT dr.*, dr.screenshot_path AS screenshotpath,  u.user_name AS name, u.mobile_number
+            FROM trackpulse.deposit_requests dr
+            JOIN trackpulse.users u ON u.user_id = dr.user_id
             {(where.Count > 0 ? "WHERE " + string.Join(" AND ", where) : "")}
             ORDER BY dr.submitted_at DESC
             """;
@@ -52,7 +52,7 @@ public class DepositRepository : IDepositRepository
     public async Task ReviewAsync(int id, string action, string? reason, int adminId)
     {
         const string sql = """
-            UPDATE deposit_requests
+            UPDATE trackpulse.deposit_requests
             SET status           = @Status,
                 rejection_reason = @Reason,
                 reviewed_by      = @AdminId,

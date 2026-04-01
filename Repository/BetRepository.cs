@@ -1,10 +1,15 @@
 // EF — BetRepository.cs
 using Microsoft.EntityFrameworkCore;
 
-public class BetRepository
+public class BetRepository:IBetRepository
 {
     private readonly AppDbContext _db;
     public BetRepository(AppDbContext db) => _db = db;
+
+    public Task<Bet> GetOrCreateAsync(int horseId, int betAmount, string bettorName)
+    {
+        throw new NotImplementedException();
+    }
 
     public async Task<Bet> PlaceBetAsync(Bet dto)
     {

@@ -22,6 +22,7 @@ public class UsersController : ControllerBase
         var user = await _userRepository.GetByMobileNumberAsync(request.MobileNumber);
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return Unauthorized("Invalid mobile number or password.");
+            
         return Ok(user);
     }
 

@@ -1,7 +1,7 @@
 // DAPPER — OddsRepository.cs (high frequency updates)
 using Dapper;
 
-public class OddsRepository
+public class OddsRepository:IOddsRepository
 {
     private readonly DapperContext _dapper;
     public OddsRepository(DapperContext dapper) => _dapper = dapper;

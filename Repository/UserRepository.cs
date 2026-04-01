@@ -36,7 +36,8 @@ public class UserRepository : IUserRepository
             IsActive = false,
             CreatedAt = DateTime.UtcNow,
             MobileNumber = user.MobileNumber,
-            Email = user.Email
+            Email = user.Email,
+            Status = "new"
 
 
         };

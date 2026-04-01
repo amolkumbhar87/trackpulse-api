@@ -13,8 +13,8 @@ CREATE UNIQUE INDEX idx_city_state ON trackpulse.cities (city_name, state);
 
 CREATE UNIQUE INDEX idx_city_venue ON trackpulse.venues (city_id, venue_name);
 
-CREATE INDEX idx_deposit_status      ON deposit_requests(status);
+CREATE INDEX idx_deposit_status      ON trackpulse.deposit_requests(status);
 
-CREATE INDEX idx_deposit_user        ON deposit_requests(user_id);
+CREATE INDEX idx_deposit_user        ON trackpulse.deposit_requests(user_id);
 
-CREATE INDEX idx_deposit_submitted   ON deposit_requests(submitted_at DESC);
+CREATE INDEX idx_deposit_submitted   ON trackpulse.deposit_requests(submitted_at DESC);

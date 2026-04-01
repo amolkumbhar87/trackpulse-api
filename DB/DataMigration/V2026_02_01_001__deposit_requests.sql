@@ -1,6 +1,6 @@
-CREATE TABLE deposit_requests (
+CREATE TABLE trackpulse.deposit_requests (
     id                SERIAL PRIMARY KEY,
-    user_id           INT NOT NULL REFERENCES users(id),
+    user_id           INT NOT NULL REFERENCES trackpulse.users(user_id),
     amount            DECIMAL(12,2) NOT NULL CHECK (amount > 0),
     payment_method    VARCHAR(20) NOT NULL DEFAULT 'upi',
     transaction_id    VARCHAR(100) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE deposit_requests (
     status            VARCHAR(20) NOT NULL DEFAULT 'pending'
                           CHECK (status IN ('pending','approved','rejected')),
     rejection_reason  VARCHAR(200),
-    reviewed_by       INT REFERENCES users(id),   -- admin user id
+    reviewed_by       INT REFERENCES trackpulse.users(user_id),   -- admin user id
     submitted_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     reviewed_at       TIMESTAMPTZ
 );

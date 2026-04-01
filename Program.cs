@@ -3,6 +3,7 @@ using System.Data;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Microsoft.Extensions.FileProviders;
 
 
 // Load environment variables from .env file
@@ -61,14 +62,19 @@ builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddScoped<IHorseRepository, HorseRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJockeyRepository, JockeyRepository>();
-builder.Services.AddScoped<BetRepository>();
-builder.Services.AddScoped<OddsRepository>();
+builder.Services.AddScoped<IBetRepository, BetRepository>();
+builder.Services.AddScoped<IOddsRepository, OddsRepository>();
 builder.Services.AddScoped<IRaceCardRepository, RaceCardRepository>();
 builder.Services.AddScoped<IRaceRepository, RaceRepository>();
 builder.Services.AddScoped<IRaceHorseRepository, RaceHorseRepository>();
 builder.Services.AddScoped<IRaceDayRepository, RaceDayRepository>();
 builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+builder.Services.AddScoped<IDepositRepository,DepositRepository>();
+
 builder.Services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBase<>));
+
+// builder.Services.JWTAuthentication(builder.Configuration);
+// builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -106,8 +112,24 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast");
 
 
-app.MapControllers();
 app.ApplyDbMigrations(connectionString);
+
+app.UseStaticFiles();
+
+// 2. Serve files from "uploads" folder
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
+
+// app.UseHttpsRedirection();
+
+// app.UseAuthentication();   // ← Must come BEFORE UseAuthorization
+// app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
