@@ -9,9 +9,11 @@ public class OddsController : ControllerBase
 
     private readonly IOddsRepository _oddsRepository;
 
-    public OddsController(IHubContext<OddsHub> hubContext)
+    public OddsController(IHubContext<OddsHub> hubContext, 
+    IOddsRepository oddsRepository)
     {
         _hubContext = hubContext;
+        _oddsRepository = oddsRepository;
     }
 
     [HttpPost("update")]

@@ -17,10 +17,10 @@ public class RaceCardRepository : IRaceCardRepository
     TO_CHAR(r.start_time, 'HH24:MI') AS Time,
     COUNT(rh.horse_id) AS Horses,
     r.status AS Status
-FROM race_day rd
-JOIN venue v        ON v.venue_id = rd.venue_id
-JOIN race r         ON rd.race_day_id = r.race_day_id
-JOIN race_horse rh  ON rh.race_id = r.race_id
+FROM race_days rd
+JOIN venues v        ON v.venue_id = rd.venue_id
+JOIN races r         ON rd.race_day_id = r.race_day_id
+JOIN race_horses rh  ON rh.race_id = r.race_id
 GROUP BY 
     r.race_id, r.race_name, v.venue_name, r.start_time, r.status, rd.city_name
 ORDER BY 
@@ -53,11 +53,11 @@ ORDER BY
                 j.name              AS JockeyName,
                 lo.win_odds         AS WinOdds,
                 lo.place_odds       AS PlaceOdds
-            FROM race r
-            JOIN race_day rd    ON rd.race_day_id   = r.race_day_id            
-            JOIN race_horse rh  ON rh.race_id        = r.race_id
-            JOIN horse h        ON h.horse_id        = rh.horse_id
-            LEFT JOIN jockey j  ON j.jockey_id       = rh.jockey_id
+            FROM races r
+            JOIN race_days rd    ON rd.race_day_id   = r.race_day_id            
+            JOIN race_horses rh  ON rh.race_id        = r.race_id
+            JOIN horses h        ON h.horse_id        = rh.horse_id
+            LEFT JOIN jockeys j  ON j.jockey_id       = rh.jockey_id
             LEFT JOIN LATERAL (
                 SELECT win_odds, place_odds
                 FROM odds
@@ -96,13 +96,13 @@ return result;
                 j.name              AS JockeyName,
                 lo.win_odds         AS WinOdds,
                 lo.place_odds       AS PlaceOdds
-            FROM race r
-            JOIN race_day rd    ON rd.race_day_id   = r.race_day_id
-            JOIN venue v        ON v.venue_id        = rd.venue_id
-            JOIN city c         ON c.city_id         = v.city_id
-            JOIN race_horse rh  ON rh.race_id        = r.race_id
-            JOIN horse h        ON h.horse_id        = rh.horse_id
-            LEFT JOIN jockey j  ON j.jockey_id       = rh.jockey_id
+            FROM races r
+            JOIN race_days rd    ON rd.race_day_id   = r.race_day_id
+            JOIN venues v        ON v.venue_id        = rd.venue_id
+            JOIN cities c         ON c.city_id         = v.city_id
+            JOIN race_horses rh  ON rh.race_id        = r.race_id
+            JOIN horses h        ON h.horse_id        = rh.horse_id
+            LEFT JOIN jockeys j  ON j.jockey_id       = rh.jockey_id
             LEFT JOIN LATERAL (
                 SELECT win_odds, place_odds
                 FROM odds

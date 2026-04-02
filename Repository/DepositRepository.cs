@@ -9,7 +9,7 @@ public class DepositRepository : IDepositRepository
     public async Task<int> CreateAsync(DepositRequest req)
     {
         const string sql = @"
-            INSERT INTO trackpulse.deposit_requests
+            INSERT INTO deposit_requests
                 (user_id, amount, payment_method, transaction_id, notes, screenshot_path)
             VALUES
                 (@UserId, @Amount, @PaymentMethod, @TransactionId, @Notes, @ScreenshotPath)
@@ -37,8 +37,8 @@ public class DepositRepository : IDepositRepository
 
         var sql = $"""
             SELECT dr.*, dr.screenshot_path AS screenshotpath,  u.user_name AS name, u.mobile_number
-            FROM trackpulse.deposit_requests dr
-            JOIN trackpulse.users u ON u.user_id = dr.user_id
+            FROM deposit_requests dr
+            JOIN users u ON u.user_id = dr.user_id
             {(where.Count > 0 ? "WHERE " + string.Join(" AND ", where) : "")}
             ORDER BY dr.submitted_at DESC
             """;
@@ -52,7 +52,7 @@ public class DepositRepository : IDepositRepository
     public async Task ReviewAsync(int id, string action, string? reason, int adminId)
     {
         const string sql = """
-            UPDATE trackpulse.deposit_requests
+            UPDATE deposit_requests
             SET status           = @Status,
                 rejection_reason = @Reason,
                 reviewed_by      = @AdminId,

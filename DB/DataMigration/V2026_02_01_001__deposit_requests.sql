@@ -1,4 +1,4 @@
-CREATE TABLE trackpulse.deposit_requests (
+CREATE TABLE IF NOT EXISTS trackpulse.deposit_requests (
     id                SERIAL PRIMARY KEY,
     user_id           INT NOT NULL REFERENCES trackpulse.users(user_id),
     amount            DECIMAL(12,2) NOT NULL CHECK (amount > 0),
