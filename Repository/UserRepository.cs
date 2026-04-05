@@ -1,9 +1,14 @@
-    
+
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 public class UserRepository : IUserRepository
 {
     private readonly AppDbContext _db;
-    public UserRepository(AppDbContext db) => _db = db;
+
+    private readonly DapperContext _dapper;
+    public UserRepository(AppDbContext db, DapperContext dapper) 
+    { _db = db; _dapper = dapper; }
+
 
     public async Task<User> GetByUsernameAsync(string username)
     {
@@ -60,5 +65,25 @@ public class UserRepository : IUserRepository
     }
         _db.Users.Update(user);
         return await Task.FromResult(_db.SaveChanges() > 0);
+    }
+
+    public Task<decimal> GetWalletBalanceAsync(int userId)
+    {
+        var connection = _dapper.CreateConnection();
+        const string sql = @"
+            SELECT wallet_balance
+            FROM trackpulse.users 
+            WHERE user_id = @UserId";
+        return connection.QuerySingleAsync<decimal>(sql, new { UserId = userId });
+    }
+
+    public Task<bool> DeductAsync(int userId, decimal amount)
+    {
+        var connection = _dapper.CreateConnection();
+        const string sql = @"
+                UPDATE trackpulse.users 
+                SET wallet_balance = wallet_balance - @Amount 
+                WHERE user_id = @UserId AND wallet_balance >= @Amount";
+        return connection.QuerySingleAsync<bool>(sql, new { UserId = userId, Amount = amount });
     }
 }

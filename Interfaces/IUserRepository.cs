@@ -7,4 +7,7 @@ public interface IUserRepository
     Task<IEnumerable<User>> GetUsersByStatusAsync(string status, string mobileNumber=null);
 
     Task<bool> UpdateUserStatusAsync(string status, int userId);
+    Task<decimal> GetWalletBalanceAsync(int userId);
+
+    Task<bool> DeductAsync(int userId, decimal amount);
 }

@@ -1,3 +1,5 @@
+
+
 public class RaceCardDto
 {
     public int RaceId { get; set; }
@@ -18,4 +20,6 @@ public class RaceCardDto
     public string Color { get; set; }
     public decimal WinOdds { get; set; }
     public decimal PlaceOdds { get; set; }
+
+    public int Position { get; set; }
 }

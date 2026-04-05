@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
     public DbSet<BetTransaction> BetTransactions { get; set; }
     public DbSet<RaceResult>     RaceResults     { get; set; }
 
+    public DbSet<RaceStream>       RaceStreams     { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("trackpulse");
@@ -38,6 +40,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<RaceResult>()
             .HasIndex(rr => new { rr.RaceId, rr.FinishPosition }).IsUnique();
 
+        modelBuilder.Entity<RaceStream>()
+            .HasIndex(rs => new { rs.RaceId, rs.StreamUrl }).IsUnique();
+
         // Decimal precision
         modelBuilder.Entity<Odds>()
             .Property(o => o.WinOdds).HasPrecision(6, 2);
@@ -49,5 +54,13 @@ public class AppDbContext : DbContext
             .Property(b => b.OddsAtBet).HasPrecision(6, 2);
         modelBuilder.Entity<BetTransaction>()
             .Property(bt => bt.Amount).HasPrecision(10, 2);
+
+            modelBuilder.Entity<Odds>(entity =>
+    {
+        entity.HasIndex(o => o.RaceHorseId)
+            .IsUnique()
+            .HasDatabaseName("IX_odds_race_horse_id");
+    });
+    
     }
 }

@@ -52,7 +52,8 @@ ORDER BY
                 h.gender            AS Gender,
                 j.name              AS JockeyName,
                 lo.win_odds         AS WinOdds,
-                lo.place_odds       AS PlaceOdds
+                lo.place_odds       AS PlaceOdds,
+                rh.position          AS Position
             FROM races r
             JOIN race_days rd    ON rd.race_day_id   = r.race_day_id            
             JOIN race_horses rh  ON rh.race_id        = r.race_id

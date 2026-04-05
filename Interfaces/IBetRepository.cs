@@ -1,5 +1,8 @@
 
 public interface IBetRepository
 {
-    Task<Bet> GetOrCreateAsync(int horseId, int betAmount, string bettorName);
+    Task PlaceBetsAsync(BetDto betDto);
+
+    Task<IEnumerable<BetHistoryDto>> GetBetsByUserIdAsync(int userId, string date);
+    Task<bool> CanPlaceBet(int userId, int raceId);
 }

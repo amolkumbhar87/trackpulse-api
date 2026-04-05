@@ -9,7 +9,7 @@ public class DepositRepository : IDepositRepository
     public async Task<int> CreateAsync(DepositRequest req)
     {
         const string sql = @"
-            INSERT INTO deposit_requests
+            INSERT INTO trackpulse.deposit_requests
                 (user_id, amount, payment_method, transaction_id, notes, screenshot_path)
             VALUES
                 (@UserId, @Amount, @PaymentMethod, @TransactionId, @Notes, @ScreenshotPath)
@@ -36,47 +36,84 @@ public class DepositRepository : IDepositRepository
             where.Add("dr.submitted_at >= NOW() - INTERVAL '7 days'");
 
         var sql = $"""
-            SELECT dr.*, dr.screenshot_path AS screenshotpath,  u.user_name AS name, u.mobile_number
-            FROM deposit_requests dr
-            JOIN users u ON u.user_id = dr.user_id
+            SELECT 
+                    dr.id,
+                    dr.user_id as userId,
+                    dr.submitted_at AS SubmittedAt, 
+                    dr.rejection_reason AS RejectReason,
+                    dr.status,
+                    dr.transaction_id AS TransactionId,
+                    dr.payment_method as PaymentMethod,
+                    dr.amount AS amount, 
+                    dr.screenshot_path AS screenshotpath, 
+                    u.user_name AS UserName, 
+                    u.mobile_number AS MobileNumber 
+            FROM trackpulse.deposit_requests dr
+            JOIN trackpulse.users u ON u.user_id = dr.user_id
             {(where.Count > 0 ? "WHERE " + string.Join(" AND ", where) : "")}
             ORDER BY dr.submitted_at DESC
             """;
         using var conn = _ctx.CreateConnection();
-        return await conn.QueryAsync<DepositRequest>(sql, new {
-            Status = status, Search = $"%{search}%"
+        return await conn.QueryAsync<DepositRequest>(sql, new
+        {
+            Status = status,
+            Search = $"%{search}%"
         });
     }
 
     // Admin approve / reject single
     public async Task ReviewAsync(int id, string action, string? reason, int adminId)
     {
-        const string sql = """
-            UPDATE deposit_requests
+        const string sql = @"
+            UPDATE trackpulse.deposit_requests
             SET status           = @Status,
                 rejection_reason = @Reason,
                 reviewed_by      = @AdminId,
                 reviewed_at      = NOW()
             WHERE id = @Id
-            """;
+            ";
         using var conn = _ctx.CreateConnection();
-        await conn.ExecuteAsync(sql, new {
-            Id = id, Status = action == "approve" ? "approved" : "rejected",
-            Reason = reason, AdminId = adminId
+        await conn.ExecuteAsync(sql, new
+        {
+            Id = id,
+            Status = action == "approve" ? "approved" : "rejected",
+            Reason = reason,
+            AdminId = adminId
         });
     }
 
     // Admin bulk approve
     public async Task BulkApproveAsync(List<int> ids, int adminId)
     {
-        const string sql = """
-            UPDATE deposit_requests
+        const string sql = @"
+            UPDATE trackpulse.deposit_requests
             SET status      = 'approved',
                 reviewed_by = @AdminId,
                 reviewed_at = NOW()
             WHERE id = ANY(@Ids) AND status = 'pending'
-            """;
+            ";
         using var conn = _ctx.CreateConnection();
         await conn.ExecuteAsync(sql, new { Ids = ids.ToArray(), AdminId = adminId });
+    }
+
+    public async Task CreditAsync(int userId, decimal amount)
+    {
+        const string sql = @"
+        UPDATE trackpulse.users
+        SET wallet_balance = wallet_balance + @Amount
+        WHERE id = @UserId
+        ";
+        using var conn = _ctx.CreateConnection();
+        await conn.ExecuteAsync(sql, new { UserId = userId, Amount = amount });
+}
+
+    public async Task<DepositRequest> GetByIdAsync(int id)
+    {
+       const string sql = @"
+        SELECT * FROM trackpulse.deposit_requests
+        WHERE id = @id
+        ";
+        using var conn = _ctx.CreateConnection();
+        return await conn.QuerySingleAsync<DepositRequest>(sql, new { Id = id });
     }
 }

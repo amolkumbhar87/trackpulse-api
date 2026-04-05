@@ -1,28 +1,56 @@
 // EF — BetRepository.cs
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 
 public class BetRepository:IBetRepository
 {
     private readonly AppDbContext _db;
-    public BetRepository(AppDbContext db) => _db = db;
 
-    public Task<Bet> GetOrCreateAsync(int horseId, int betAmount, string bettorName)
-    {
-        throw new NotImplementedException();
+    private readonly DapperContext _dapper;
+
+    public BetRepository(AppDbContext db, DapperContext dapper) 
+    { _db = db;
+    _dapper = dapper;
     }
 
-    public async Task<Bet> PlaceBetAsync(Bet dto)
+     public async Task<IEnumerable<BetHistoryDto>> GetBetsByUserIdAsync(int userId, string date)
+    {
+        using var conn = _dapper.CreateConnection();
+        const string sql = @"
+            SELECT 
+                b.bet_id AS BetId,
+                b.bet_type AS BetType,
+                b.amount AS Stake,
+                b.odds_at_bet AS OddsAtBet,
+                b.status AS Status,
+                b.placed_at AS PlacedAt,
+                h.horse_name AS HorseName,
+                r.race_name AS RaceName,
+                rh.position AS RaceHorseNumber
+            FROM trackpulse.bets b
+            INNER JOIN trackpulse.race_horses rh ON b.race_horse_id = rh.race_horse_id
+            INNER JOIN trackpulse.horses h ON rh.horse_id = h.horse_id
+            INNER JOIN trackpulse.races r ON rh.race_id = r.race_id
+            WHERE b.user_id = @UserId AND DATE(b.placed_at) = @Date ::date
+            ORDER BY b.placed_at DESC";
+        
+
+        return await conn.QueryAsync<BetHistoryDto>(sql, new { UserId = userId, Date = date });
+    }
+
+
+    public async Task PlaceBetsAsync(BetDto betDto)
     {
         using var transaction = await _db.Database.BeginTransactionAsync();
         try
         {
             var bet = new Bet
             {
-                UserId      = dto.UserId,
-                RaceHorseId = dto.RaceHorseId,
-                BetType     = dto.BetType,
-                Amount      = dto.Amount,
-                OddsAtBet   = dto.OddsAtBet,
+                UserId      = betDto.UserId==0 ? 1 : betDto.UserId, // Default to 1 for testing
+                RaceHorseId = betDto.RaceHorseId,
+                BetType     = betDto.BetType,
+                Amount      = betDto.Stake,
+                OddsAtBet   = betDto.Odds,
                 Status      = "Pending"
             };
             _db.Bets.Add(bet);
@@ -31,16 +59,15 @@ public class BetRepository:IBetRepository
             var txn = new BetTransaction
             {
                 BetId           = bet.BetId,
-                UserId          = dto.UserId,
+                UserId          = betDto.UserId==0 ? 1 : betDto.UserId, // Default to 1 for testing
                 TransactionType = "Debit",
-                Amount          = dto.Amount,
+                Amount          = betDto.Stake,
                 PaymentStatus   = "Success"
             };
             _db.BetTransactions.Add(txn);
             await _db.SaveChangesAsync();
 
             await transaction.CommitAsync();
-            return bet;
         }
         catch
         {
@@ -89,4 +116,20 @@ public class BetRepository:IBetRepository
 
         await _db.SaveChangesAsync();
     }
+
+// In your betting controller/service
+public async Task<bool> CanPlaceBet(int userId, int raceId)
+{
+    var existingBetsCount = await _db.Bets
+        .Include(b => b.RaceHorse)
+        .Where(b => b.UserId == userId && b.RaceHorse.RaceId == raceId)
+        .CountAsync();
+    
+    if (existingBetsCount >= 3)
+    {
+        throw new InvalidOperationException("Maximum 3 bets allowed per race");
+    }
+    
+    return true;
+}
 }

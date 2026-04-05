@@ -10,7 +10,7 @@ public class BetController : ControllerBase
 
 
     private readonly IRaceRepository _raceRepository;
-    private readonly IHorseRepository _horseRepository; 
+    private readonly IHorseRepository _horseRepository;
     private readonly IRaceHorseRepository _raceHorseRepository;
 
     private readonly IRaceCardRepository _raceCardRepository;
@@ -19,11 +19,14 @@ public class BetController : ControllerBase
 
     private readonly IBetRepository _betRepository;
 
-    public BetController(IRaceRepository raceRepository, IHorseRepository horseRepository, 
+    private readonly IUserRepository _userRepository;
+
+    public BetController(IRaceRepository raceRepository, IHorseRepository horseRepository,
     IRaceHorseRepository raceHorseRepository,
     IRaceCardRepository raceCardRepository,
     IHubContext<OddsHub> hubContext,
-    IBetRepository betRepository
+    IBetRepository betRepository,
+    IUserRepository userRepository
     )
     {
         _raceRepository = raceRepository;
@@ -32,47 +35,44 @@ public class BetController : ControllerBase
         _raceCardRepository = raceCardRepository;
         _hubContext = hubContext;
         _betRepository = betRepository;
+        _userRepository = userRepository;
 
     }
 
-    
-    // [HttpGet("races/{cityName}/{raceDate}")]
-    [HttpGet("races")]
-    public async Task<IActionResult> GetRaceByCityAndDateAsync(string cityName, string raceDate)
+
+    [HttpPost("bet-by-horse")]
+    public async Task<IActionResult> PlaceBetsAsync(BetDto betDto)
     {
-        var races = await _raceRepository.GetRaceByCityAndDateAsync(cityName, raceDate);
-        return Ok(races);
+        var userId = 2; //int.Parse(User.FindFirst("sub")!.Value);
+        betDto.UserId = userId;
+
+        var balance = await _userRepository.GetWalletBalanceAsync(userId);
+        if (balance < betDto.Stake)
+        {
+            return BadRequest(new { error = "Insufficient wallet balance." });
+        }
+
+        // 2. Deduct wallet
+        await _userRepository.DeductAsync(userId, betDto.Stake);
+
+        await _betRepository.PlaceBetsAsync(betDto);
+        return Ok();
     }
 
-    [HttpGet("races-by-date")]
-    public async Task<IActionResult> GetRaceByDateAsync(string raceDate)
+    [HttpGet("history/{userId}/{date}")]
+    public async Task<IActionResult> GetBetsByUserIdAsync(int userId, string date)
     {
-        var races = await _raceCardRepository.GetRaceByDateAsync(raceDate);
-        return Ok(races);
+        var bets = await _betRepository.GetBetsByUserIdAsync(userId, date);
+        return Ok(bets);
     }
 
-    [HttpGet("races-by-id")]
-    public async Task<IActionResult> GetRaceByIdAsync(int raceId)
+    [HttpGet("get-user-bets-count-for-race")]
+    public async Task<IActionResult> GetUserBetsCountForRace([FromQuery] int raceId)
     {
-        var races = await _raceCardRepository.GetRaceByIdAsync(raceId);
-        return Ok(races);
+        int userId = 2; // Replace with actual user ID retrieval logic
+        var canPlace = await _betRepository.CanPlaceBet(userId, raceId);
+        return Ok(canPlace);
     }
 
-
-    [HttpPatch("{raceId}/status")]
-public async Task<IActionResult> UpdateStatus(int raceId, [FromBody] string status)
-{
-    var allowed = new[] { "Upcoming", "Live", "Completed", "Cancelled" };
-    if (!allowed.Contains(status)) return BadRequest("Invalid status");
-
-    await _raceRepository.UpdateStatusAsync(raceId, status);
-
-    await _hubContext.Clients.All
-        .SendAsync("RaceStatusChanged", new { raceId, status });
-
-    return Ok(new { status });
-}
-
-    
 
 }

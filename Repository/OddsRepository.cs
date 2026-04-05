@@ -1,7 +1,7 @@
 // DAPPER — OddsRepository.cs (high frequency updates)
 using Dapper;
 
-public class OddsRepository:IOddsRepository
+public class OddsRepository : IOddsRepository
 {
     private readonly DapperContext _dapper;
     public OddsRepository(DapperContext dapper) => _dapper = dapper;
@@ -26,21 +26,33 @@ public class OddsRepository:IOddsRepository
     // Bulk update all horses in a race at once
     public async Task BulkUpdateOddsAsync(List<Odds> horseOdds)
     {
+        if (horseOdds == null || !horseOdds.Any())
+            return;
+
         using var conn = _dapper.CreateConnection();
 
+        // For PostgreSQL (recommended)
         const string sql = @"
-            UPDATE odds
-            SET win_odds = @WinOdds, place_odds = @PlaceOdds, updated_at = NOW()
-            WHERE race_horse_id = @RaceHorseId";
+        INSERT INTO odds (race_horse_id, win_odds, place_odds, updated_at, updated_by)
+        VALUES (@RaceHorseId, @WinOdds, @PlaceOdds, NOW(),1) -- Replace with actual admin ID if needed
+        ON CONFLICT (race_horse_id) 
+        DO UPDATE SET 
+            win_odds = EXCLUDED.win_odds,
+            place_odds = EXCLUDED.place_odds,
+            updated_at = NOW(),
+            updated_by = 1 -- Replace with actual admin ID if needed)
+        RETURNING race_horse_id;";
 
-        // await conn.ExecuteAsync(sql, updates.Select(u => new
-        // {
-        //     u.RaceHorseId,
-        //     u.WinOdds,
-        //     u.PlaceOdds,
-        //     AdminId = adminId
-        // }));
-
-        await conn.ExecuteAsync(sql, horseOdds); 
+        try
+        {
+            var result = await conn.ExecuteAsync(sql, horseOdds);
+            // result will be the number of affected rows (both updates and inserts)
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            Console.WriteLine($"Error in BulkUpdateOddsAsync: {ex.Message}");
+            throw;
+        }
     }
 }
