@@ -10,7 +10,7 @@ public class RaceStreamRepository : IRaceStreamRepository
         _context = context;
     }
 
-    public async Task<string> GetStreamUrlAsync(int raceId)
+    public async Task<string> GetStreamUrlAsync(int? raceId)
     {
         var raceStream = await _context.RaceStreams
             .Where(rs => rs.RaceId == raceId && rs.IsActive)
@@ -26,7 +26,7 @@ public class RaceStreamRepository : IRaceStreamRepository
             .ToListAsync();
     }
 
-    public async Task<bool> DeactivateStreamAsync(int raceId)
+    public async Task<bool> DeactivateStreamAsync(int? raceId)
     {
         var existingStream = await _context.RaceStreams
             .FirstOrDefaultAsync(rs => rs.RaceId == raceId);
@@ -42,12 +42,12 @@ public class RaceStreamRepository : IRaceStreamRepository
         return false;
     }
 
-    public async Task<RaceStream> GetStreamByIdAsync(int id)
+    public async Task<RaceStream> GetStreamByIdAsync(int? id)
     {
         return await _context.RaceStreams.FindAsync(id);
     }
 
-    public async Task<bool> DeleteStreamAsync(int raceId)
+    public async Task<bool> DeleteStreamAsync(int? raceId)
     {
         var existingStream = await _context.RaceStreams
             .FirstOrDefaultAsync(rs => rs.RaceId == raceId);
@@ -62,7 +62,7 @@ public class RaceStreamRepository : IRaceStreamRepository
         return false;
     }
 
-    public async Task<bool> UpdateStreamUrlAsync(int raceId, string streamUrl)
+    public async Task<bool> UpdateStreamUrlAsync(int? raceId, string streamUrl)
     {
         try
         {
@@ -101,4 +101,6 @@ public class RaceStreamRepository : IRaceStreamRepository
             return false;
         }
     }
+
+    
 }

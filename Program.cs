@@ -59,19 +59,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddSingleton<DapperContext>();
 
 // Repositories
-builder.Services.AddScoped<IHorseRepository, HorseRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IJockeyRepository, JockeyRepository>();
-builder.Services.AddScoped<IBetRepository, BetRepository>();
-builder.Services.AddScoped<IOddsRepository, OddsRepository>();
-builder.Services.AddScoped<IRaceCardRepository, RaceCardRepository>();
-builder.Services.AddScoped<IRaceRepository, RaceRepository>();
-builder.Services.AddScoped<IRaceHorseRepository, RaceHorseRepository>();
-builder.Services.AddScoped<IRaceDayRepository, RaceDayRepository>();
-builder.Services.AddScoped<IVenueRepository, VenueRepository>();
-builder.Services.AddScoped<IDepositRepository,DepositRepository>();
-
-builder.Services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBase<>));
+builder.Services.AddRepositories();
 
 // builder.Services.JWTAuthentication(builder.Configuration);
 // builder.Services.AddAuthorization();
@@ -92,24 +80,24 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// var summaries = new[]
+// {
+//     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+// };
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+// app.MapGet("/weatherforecast", () =>
+// {
+//     var forecast = Enumerable.Range(1, 5).Select(index =>
+//         new WeatherForecast
+//         (
+//             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+//             Random.Shared.Next(-20, 55),
+//             summaries[Random.Shared.Next(summaries.Length)]
+//         ))
+//         .ToArray();
+//     return forecast;
+// })
+// .WithName("GetWeatherForecast");
 
 
 app.ApplyDbMigrations(connectionString);
@@ -132,7 +120,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapControllers();
 
 app.Run();
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+// record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+// {
+//     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+// }

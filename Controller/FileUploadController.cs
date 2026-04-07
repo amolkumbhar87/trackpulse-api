@@ -13,10 +13,12 @@ public class FileUploadController : ControllerBase
     private readonly IRaceDayRepository _raceDayRepository;
 
     private readonly IVenueRepository _venueRepository;
+
+    private readonly ITrainerRepository _trainerRepository;
     public FileUploadController(IRaceRepository raceRepository, IHorseRepository horseRepository, 
     IJockeyRepository jockeyRepository, IRaceHorseRepository raceHorseRepository,
     IRaceDayRepository raceDayRepository,
-    IVenueRepository venueRepository)
+    IVenueRepository venueRepository, ITrainerRepository trainerRepository)
     {
         _raceRepository = raceRepository;
         _horseRepository = horseRepository;
@@ -24,6 +26,7 @@ public class FileUploadController : ControllerBase
         _raceHorseRepository = raceHorseRepository;
         _raceDayRepository = raceDayRepository;
         _venueRepository = venueRepository;
+        _trainerRepository = trainerRepository;
     }
 
     [HttpPost("parse-html")]
@@ -71,7 +74,7 @@ var venueList  = await _venueRepository.GetAllAsync();
 
                
                 // Get or create Trainer
-                // var trainer = await _trainerRepository.GetOrCreateByNameAsync(parsedHorse.Trainer);
+                var trainer = await _trainerRepository.GetOrCreateByNameAsync(parsedHorse.Trainer);
 
                 // Get or create Jockey
                 int? jockeyId = null;

@@ -25,10 +25,28 @@ public static class ServiceCollection
         evolve.Migrate();
     }
 
+    public static void AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IHorseRepository, HorseRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IJockeyRepository, JockeyRepository>();
+        services.AddScoped<IBetRepository, BetRepository>();
+        services.AddScoped<IOddsRepository, OddsRepository>();
+        services.AddScoped<IRaceCardRepository, RaceCardRepository>();
+        services.AddScoped<IRaceRepository, RaceRepository>();
+        services.AddScoped<IRaceHorseRepository, RaceHorseRepository>();
+        services.AddScoped<IRaceDayRepository, RaceDayRepository>();
+        services.AddScoped<IVenueRepository, VenueRepository>();
+        services.AddScoped<IDepositRepository, DepositRepository>();
+        services.AddScoped<ITrainerRepository, TrainerRepository>();
+
+        services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBase<>));
+    }
+
     public static void AddSwagger(this IServiceCollection services)
     {
-        
-        
+
+
     }
 
     public static void JWTAuthentication(this IServiceCollection services, IConfiguration configuration)

@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
 
     public DbSet<RaceStream>       RaceStreams     { get; set; }
 
+    public DbSet<Trainer>          Trainers        { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("trackpulse");

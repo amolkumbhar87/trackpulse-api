@@ -1,57 +1,100 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; 
 
+[Route("api/streams")]
+// The controller already has [ApiController] and [Route] attributes, but for the new endpoints, we use /api/streams
+
 [ApiController]
 [Route("api/[controller]")]
 public class RaceStreamController : ControllerBase
 {
-    private readonly AppDbContext _context;
-    
-    public RaceStreamController(AppDbContext context)
+    private readonly IRaceStreamRepository _raceStreamRepository;
+
+    public RaceStreamController(IRaceStreamRepository raceStreamRepository)
     {
-        _context = context;
+        _raceStreamRepository = raceStreamRepository;
+    }
+
+    // GET /api/streams
+    [HttpGet]
+    public async Task<IActionResult> GetAllStreams()
+    {
+        var streams = await _raceStreamRepository.GetAllActiveStreamsAsync();
+        return Ok(streams);
+    }
+
+    // POST /api/streams
+    [HttpPost]
+    public async Task<IActionResult> AddStream([FromBody] RaceStream request)
+    {
+        if (request == null || string.IsNullOrWhiteSpace(request.StreamUrl))
+        {
+            return BadRequest(new { error = "Stream URL cannot be empty" });
+        }
+        request.CreatedAt = DateTime.UtcNow;
+        request.UpdatedAt = DateTime.UtcNow;
+        request.IsActive = true;
+        var result = await _raceStreamRepository.UpdateStreamUrlAsync(request.RaceId, request.StreamUrl);
+        if (result)
+        {
+            return Ok(new { message = "Stream added successfully", stream = request });
+        }
+        return StatusCode(500, new { error = "Failed to add stream" });
+    }
+
+    // PUT /api/streams/{id}
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateStream(int id, [FromBody] RaceStream request)
+    {
+        var stream = await _raceStreamRepository.GetStreamByIdAsync(id);
+        if (stream == null)
+        {
+            return NotFound(new { error = "Stream not found" });
+        }
+        if (!string.IsNullOrWhiteSpace(request.StreamUrl))
+            stream.StreamUrl = request.StreamUrl;
+        if (request.IsActive != stream.IsActive)
+            stream.IsActive = request.IsActive;
+        stream.UpdatedAt = DateTime.UtcNow;
+        // Save changes
+        var result = await _raceStreamRepository.UpdateStreamUrlAsync(stream.RaceId, stream.StreamUrl);
+        if (result)
+        {
+            return Ok(new { message = "Stream updated successfully", stream });
+        }
+        return StatusCode(500, new { error = "Failed to update stream" });
+    }
+
+    // DELETE /api/streams/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteStream(int id)
+    {
+        var stream = await _raceStreamRepository.GetStreamByIdAsync(id);
+        if (stream == null)
+        {
+            return NotFound(new { error = "Stream not found" });
+        }
+        var result = await _raceStreamRepository.DeleteStreamAsync(stream.RaceId);
+        if (result)
+        {
+            return Ok(new { message = "Stream deleted successfully" });
+        }
+        return StatusCode(500, new { error = "Failed to delete stream" });
     }
     
     [HttpPost("stream-url/{raceId}")]
-    public async Task<IActionResult> UpdateStreamUrl(int raceId, [FromBody] UpdateStreamUrlRequest request)
+    public async Task<IActionResult> UpdateStreamUrl(int raceId, [FromBody] RaceStream request)
     {
         if (string.IsNullOrWhiteSpace(request.StreamUrl))
         {
             return BadRequest(new { error = "Stream URL cannot be empty" });
         }
-        
-        var existingStream = await _context.RaceStreams
-            .FirstOrDefaultAsync(rs => rs.RaceId == raceId);
-        
-        if (existingStream != null)
+        var result = await _raceStreamRepository.UpdateStreamUrlAsync(raceId, request.StreamUrl);
+        if (result)
         {
-            existingStream.StreamUrl = request.StreamUrl;
-            existingStream.UpdatedAt = DateTime.UtcNow;
+            return Ok(new { message = "Stream URL updated successfully", raceId = raceId, streamUrl = request.StreamUrl });
         }
-        else
-        {
-            var newStream = new RaceStream
-            {
-                RaceId = raceId,
-                StreamUrl = request.StreamUrl,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
-            await _context.RaceStreams.AddAsync(newStream);
-        }
-        
-        await _context.SaveChangesAsync();
-        
-        return Ok(new { 
-            message = "Stream URL updated successfully", 
-            raceId = raceId, 
-            streamUrl = request.StreamUrl 
-        });
+        return StatusCode(500, new { error = "Failed to update stream URL" });
     }
 }
 
-public class UpdateStreamUrlRequest
-{
-    public string StreamUrl { get; set; }
-}

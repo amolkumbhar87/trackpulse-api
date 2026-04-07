@@ -12,20 +12,17 @@ public class RaceDayRepository : IRaceDayRepository
         _dapper = dapper;
     }
 
-   
 
-    
+
+
 
     public async Task<RaceDay> CreateAsync(RaceDay raceDay)
     {
 
-if (raceDay.RaceDate.HasValue)
-{
-    raceDay.RaceDate = DateTime.SpecifyKind(
-        raceDay.RaceDate.Value,
-        DateTimeKind.Utc
-    );
-}
+        if (raceDay.RaceDate.HasValue)
+        {
+            raceDay.RaceDate = DateTime.SpecifyKind(raceDay.RaceDate.Value.Date, DateTimeKind.Utc);
+        }
 
         var existingRaceDay = await _db.RaceDays
             .FirstOrDefaultAsync(rd => rd.RaceDate == raceDay.RaceDate && rd.CityName == raceDay.CityName);
