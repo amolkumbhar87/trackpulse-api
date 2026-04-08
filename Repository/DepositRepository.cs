@@ -101,7 +101,7 @@ public class DepositRepository : IDepositRepository
         const string sql = @"
         UPDATE trackpulse.users
         SET wallet_balance = wallet_balance + @Amount
-        WHERE id = @UserId
+        WHERE user_id = @UserId
         ";
         using var conn = _ctx.CreateConnection();
         await conn.ExecuteAsync(sql, new { UserId = userId, Amount = amount });
@@ -110,7 +110,9 @@ public class DepositRepository : IDepositRepository
     public async Task<DepositRequest> GetByIdAsync(int id)
     {
        const string sql = @"
-        SELECT * FROM trackpulse.deposit_requests
+        SELECT id, user_id as UserId, amount, Payment_Method as PaymentMethod, 
+Transaction_Id as TransactionId, status
+ FROM trackpulse.deposit_requests
         WHERE id = @id
         ";
         using var conn = _ctx.CreateConnection();

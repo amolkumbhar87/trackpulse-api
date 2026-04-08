@@ -43,7 +43,7 @@ public class BetController : ControllerBase
     [HttpPost("bet-by-horse")]
     public async Task<IActionResult> PlaceBetsAsync(BetDto betDto)
     {
-        var userId = 2; //int.Parse(User.FindFirst("sub")!.Value);
+        var userId = 3; //int.Parse(User.FindFirst("sub")!.Value);
         betDto.UserId = userId;
 
         var balance = await _userRepository.GetWalletBalanceAsync(userId);

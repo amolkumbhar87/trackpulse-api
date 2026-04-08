@@ -127,7 +127,7 @@ public class DepositController : ControllerBase
         // Credit wallet
         await _depositRepository.CreditAsync(deposit.UserId, deposit.Amount);
 
-        // Mark approved
-        await _depositRepository.ReviewAsync(depositId, "approved", null, 1);
+        // Mark approved by admin (temporary, until we implement proper transaction handling in repository)
+        await _depositRepository.ReviewAsync(depositId, "approve", null, 1);
     }
 }

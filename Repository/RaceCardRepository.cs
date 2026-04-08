@@ -21,6 +21,7 @@ FROM race_days rd
 JOIN venues v        ON v.venue_id = rd.venue_id
 JOIN races r         ON rd.race_day_id = r.race_day_id
 JOIN race_horses rh  ON rh.race_id = r.race_id
+WHERE DATE(rd.race_date) = CURRENT_DATE
 GROUP BY 
     r.race_id, r.race_name, v.venue_name, r.start_time, r.status, rd.city_name
 ORDER BY 

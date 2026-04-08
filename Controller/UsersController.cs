@@ -84,7 +84,7 @@ public class UsersController : ControllerBase
     //[Authorize]
     public async Task<IActionResult> GetWalletBalanceAsync()
     {
-        int userId = 2; //int.Parse(User.FindFirst("sub")!.Value);
+        int userId = 3; //int.Parse(User.FindFirst("sub")!.Value);
         var balance = await _userRepository.GetWalletBalanceAsync(userId);
         return Ok(balance);
     }
