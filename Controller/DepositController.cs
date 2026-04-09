@@ -14,9 +14,8 @@ public class DepositController : ControllerBase
         _env = env;
     }
 
-    // ── User: submit deposit request ─────────────────
     [HttpPost]
-    //[Authorize]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> Submit([FromForm] SubmitDepositDto dto)
     {
         // Save screenshot file
@@ -32,7 +31,8 @@ public class DepositController : ControllerBase
             screenshotPath = $"/uploads/deposits/{fileName}";
         }
 
-        //var userId = int.Parse(User.FindFirst("sub")!.Value);
+        var userId = int.Parse(User.FindFirst("uid")!.Value);
+
         var req = new DepositRequest
         {
             UserId = dto.UserId,
@@ -48,7 +48,7 @@ public class DepositController : ControllerBase
 
     // ── Admin: get all deposits ───────────────────────
     [HttpGet]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? status,
         [FromQuery] string? search,
@@ -76,13 +76,12 @@ public class DepositController : ControllerBase
         return Ok(result);
     }
 
-    // ── Admin: approve or reject single ──────────────
     [HttpPatch("{id}/review")]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Review(int id, [FromBody] ReviewDepositDto dto)
     {
-        //var adminId = int.Parse(User.FindFirst("sub")!.Value);
-        var adminId = 1; // TODO: replace with actual admin ID from auth
+        var adminId = int.Parse(User.FindFirst("uid")!.Value);
+
         await _depositRepository.ReviewAsync(id, dto.Action, dto.RejectionReason, adminId);
 
         // Credit wallet if approved
@@ -96,10 +95,11 @@ public class DepositController : ControllerBase
 
     // ── Admin: bulk approve ───────────────────────────
     [HttpPost("bulk-approve")]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> BulkApprove([FromBody] BulkApproveDto dto)
     {
-        var adminId = int.Parse(User.FindFirst("sub")!.Value);
+        var adminId = int.Parse(User.FindFirst("uid")!.Value);
+
         await _depositRepository.BulkApproveAsync(dto.Ids, adminId);
         // Credit each wallet
         foreach (var id in dto.Ids)
@@ -107,20 +107,9 @@ public class DepositController : ControllerBase
         return Ok();
     }
 
-    // ── User: own deposit history ─────────────────────
-    // [HttpGet("my")]
-    // //[Authorize]
-    // public async Task<IActionResult> MyDeposits()
-    // {
-    //     var userId = int.Parse(User.FindFirst("sub")!.Value);
-    //     var deposits = await _depositRepository.GetAllAsync(null, null, null);
-    //     return Ok(deposits.Where(d => d.UserId == userId));
-    // }
 
     private async Task CreditWalletAsync(int depositId)
     {
-        // TODO: call WalletRepository.CreditAsync(userId, amount)
-        // Get deposit → credit user wallet → done
 
         var deposit = await _depositRepository.GetByIdAsync(depositId);
 

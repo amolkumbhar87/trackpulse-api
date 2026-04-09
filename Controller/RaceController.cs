@@ -10,28 +10,24 @@ public class RaceController : ControllerBase
 
 
     private readonly IRaceRepository _raceRepository;
-    private readonly IHorseRepository _horseRepository; 
-    private readonly IRaceHorseRepository _raceHorseRepository;
 
     private readonly IRaceCardRepository _raceCardRepository;
 
     private readonly IHubContext<OddsHub> _hubContext;
 
-    public RaceController(IRaceRepository raceRepository, IHorseRepository horseRepository, 
-    IRaceHorseRepository raceHorseRepository,
+    public RaceController(IRaceRepository raceRepository,
     IRaceCardRepository raceCardRepository,
     IHubContext<OddsHub> hubContext
     )
     {
         _raceRepository = raceRepository;
-        _horseRepository = horseRepository;
-        _raceHorseRepository = raceHorseRepository;
+
         _raceCardRepository = raceCardRepository;
         _hubContext = hubContext;
 
     }
 
-    
+
     // [HttpGet("races/{cityName}/{raceDate}")]
     [HttpGet("races")]
     public async Task<IActionResult> GetRaceByCityAndDateAsync(string cityName, string raceDate)
@@ -56,19 +52,19 @@ public class RaceController : ControllerBase
 
 
     [HttpPatch("{raceId}/status")]
-public async Task<IActionResult> UpdateStatus(int raceId, [FromBody] string status)
-{
-    var allowed = new[] { "Upcoming", "Live", "Completed", "Cancelled" };
-    if (!allowed.Contains(status)) return BadRequest("Invalid status");
+    public async Task<IActionResult> UpdateStatus(int raceId, [FromBody] string status)
+    {
+        var allowed = new[] { "Upcoming", "Live", "Completed", "Cancelled" };
+        if (!allowed.Contains(status)) return BadRequest("Invalid status");
 
-    await _raceRepository.UpdateStatusAsync(raceId, status);
+        await _raceRepository.UpdateStatusAsync(raceId, status);
 
-    await _hubContext.Clients.All
-        .SendAsync("RaceStatusChanged", new { raceId, status });
+        await _hubContext.Clients.All
+            .SendAsync("RaceStatusChanged", new { raceId, status });
 
-    return Ok(new { status });
-}
+        return Ok(new { status });
+    }
 
-    
+
 
 }

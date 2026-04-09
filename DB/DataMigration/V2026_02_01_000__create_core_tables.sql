@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS trackpulse.race_horses (
     race_id INT NOT NULL,
     horse_id INT NOT NULL,
     jockey_id INT,
+    trainer_name VARCHAR(150),
     draw_number INT NOT NULL,
     position INT NOT NULL,
     weight NUMERIC(10,2),

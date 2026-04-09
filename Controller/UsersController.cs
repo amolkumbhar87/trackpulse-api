@@ -9,7 +9,7 @@ public class UsersController : ControllerBase
 
     private readonly JwtService _jwtService;
 
-    public UsersController(IUserRepository userRepository, 
+    public UsersController(IUserRepository userRepository,
                            JwtService jwtService)
     {
         _userRepository = userRepository;
@@ -17,6 +17,8 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("authenticate")]
+    [AllowAnonymous]
+    //[Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequestDto request)
     {
         if (request == null || string.IsNullOrEmpty(request.MobileNumber) || string.IsNullOrEmpty(request.Password))
@@ -28,13 +30,13 @@ public class UsersController : ControllerBase
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return Unauthorized("Invalid mobile number or password.");
 
-            var token = _jwtService.GenerateToken(user);
+        var token = _jwtService.GenerateToken(user);
 
         return Ok(new
         {
             token = token
         });
-            
+
         //return Ok(user);
     }
 
@@ -42,7 +44,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Register(UserDto userRequest)
     {
         var existingUser = await _userRepository.GetByUsernameAsync(userRequest.UserName);
-        if (existingUser != null) return BadRequest("Username already exists.");       
+        if (existingUser != null) return BadRequest("Username already exists.");
 
         var createdUser = await _userRepository.CreateAsync(userRequest);
         return Ok(new { createdUser.UserId, createdUser.UserName });
@@ -64,7 +66,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("status/{status}")]
-    public async Task<IActionResult> GetUsersByStatusAsync(string status, [FromQuery]string? mobileNumber=null)
+    public async Task<IActionResult> GetUsersByStatusAsync(string status, [FromQuery] string? mobileNumber = null)
     {
         try
         {
@@ -95,9 +97,10 @@ public class UsersController : ControllerBase
     //[Authorize]
     public async Task<IActionResult> GetWalletBalanceAsync()
     {
-        int userId = 3; //int.Parse(User.FindFirst("sub")!.Value);
+        var userId = int.Parse(User.FindFirst("uid")!.Value);
+
         var balance = await _userRepository.GetWalletBalanceAsync(userId);
         return Ok(balance);
     }
 }
-            
+

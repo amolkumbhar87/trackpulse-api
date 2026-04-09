@@ -9,31 +9,16 @@ public class BetController : ControllerBase
 {
 
 
-    private readonly IRaceRepository _raceRepository;
-    private readonly IHorseRepository _horseRepository;
-    private readonly IRaceHorseRepository _raceHorseRepository;
-
-    private readonly IRaceCardRepository _raceCardRepository;
-
-    private readonly IHubContext<OddsHub> _hubContext;
-
     private readonly IBetRepository _betRepository;
 
     private readonly IUserRepository _userRepository;
 
-    public BetController(IRaceRepository raceRepository, IHorseRepository horseRepository,
-    IRaceHorseRepository raceHorseRepository,
-    IRaceCardRepository raceCardRepository,
-    IHubContext<OddsHub> hubContext,
+    public BetController(
     IBetRepository betRepository,
     IUserRepository userRepository
     )
     {
-        _raceRepository = raceRepository;
-        _horseRepository = horseRepository;
-        _raceHorseRepository = raceHorseRepository;
-        _raceCardRepository = raceCardRepository;
-        _hubContext = hubContext;
+
         _betRepository = betRepository;
         _userRepository = userRepository;
 
@@ -41,9 +26,10 @@ public class BetController : ControllerBase
 
 
     [HttpPost("bet-by-horse")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> PlaceBetsAsync(BetDto betDto)
     {
-        var userId = 3; //int.Parse(User.FindFirst("sub")!.Value);
+        var userId = int.Parse(User.FindFirst("uid")!.Value);
         betDto.UserId = userId;
 
         var balance = await _userRepository.GetWalletBalanceAsync(userId);
@@ -67,9 +53,10 @@ public class BetController : ControllerBase
     }
 
     [HttpGet("get-user-bets-count-for-race")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> GetUserBetsCountForRace([FromQuery] int raceId)
     {
-        int userId = 2; // Replace with actual user ID retrieval logic
+        var userId = int.Parse(User.FindFirst("uid")!.Value);
         var canPlace = await _betRepository.CanPlaceBet(userId, raceId);
         return Ok(canPlace);
     }

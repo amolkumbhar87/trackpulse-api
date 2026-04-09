@@ -42,7 +42,7 @@ public static class ServiceCollection
 
         services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBase<>));
 
-       
+
     }
 
 
@@ -55,7 +55,7 @@ public static class ServiceCollection
 
     public static void JWTAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
- services.AddScoped<JwtService>();
+        services.AddScoped<JwtService>();
         var jwtSettings = configuration.GetSection("Jwt");
         var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
         services.AddAuthentication(options =>
