@@ -7,9 +7,13 @@ public class UsersController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
 
-    public UsersController(IUserRepository userRepository)
+    private readonly JwtService _jwtService;
+
+    public UsersController(IUserRepository userRepository, 
+                           JwtService jwtService)
     {
         _userRepository = userRepository;
+        _jwtService = jwtService;
     }
 
     [HttpPost("authenticate")]
@@ -23,8 +27,15 @@ public class UsersController : ControllerBase
         var user = await _userRepository.GetByMobileNumberAsync(request.MobileNumber);
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return Unauthorized("Invalid mobile number or password.");
+
+            var token = _jwtService.GenerateToken(user);
+
+        return Ok(new
+        {
+            token = token
+        });
             
-        return Ok(user);
+        //return Ok(user);
     }
 
     [HttpPost("register")]

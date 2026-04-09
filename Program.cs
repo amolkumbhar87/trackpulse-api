@@ -61,8 +61,8 @@ builder.Services.AddSingleton<DapperContext>();
 // Repositories
 builder.Services.AddRepositories();
 
-// builder.Services.JWTAuthentication(builder.Configuration);
-// builder.Services.AddAuthorization();
+builder.Services.JWTAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
