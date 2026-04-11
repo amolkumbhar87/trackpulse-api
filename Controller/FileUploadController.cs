@@ -92,7 +92,7 @@ var venueList  = await _venueRepository.GetAllAsync();
                     {
                         RaceId = race.RaceId,
                         HorseId = horse.HorseId,
-                        //TrainerId = trainer?.TrainerId,
+                        TrainerId = trainer.Id,
                         Position = parsedHorse.Position, // Position will be
                         JockeyId = jockeyId,
                         DrawNumber = parsedHorse.DrawNumber,

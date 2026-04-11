@@ -2,18 +2,19 @@
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 
-public class BetRepository:IBetRepository
+public class BetRepository : IBetRepository
 {
     private readonly AppDbContext _db;
 
     private readonly DapperContext _dapper;
 
-    public BetRepository(AppDbContext db, DapperContext dapper) 
-    { _db = db;
-    _dapper = dapper;
+    public BetRepository(AppDbContext db, DapperContext dapper)
+    {
+        _db = db;
+        _dapper = dapper;
     }
 
-     public async Task<IEnumerable<BetHistoryDto>> GetBetsByUserIdAsync(int userId, string date)
+    public async Task<IEnumerable<BetHistoryDto>> GetBetsByUserIdAsync(int userId, string date)
     {
         using var conn = _dapper.CreateConnection();
         const string sql = @"
@@ -33,7 +34,7 @@ public class BetRepository:IBetRepository
             INNER JOIN trackpulse.races r ON rh.race_id = r.race_id
             WHERE b.user_id = @UserId AND DATE(b.placed_at) = @Date ::date
             ORDER BY b.placed_at DESC";
-        
+
 
         return await conn.QueryAsync<BetHistoryDto>(sql, new { UserId = userId, Date = date });
     }
@@ -46,26 +47,36 @@ public class BetRepository:IBetRepository
         {
             var bet = new Bet
             {
-                UserId      = betDto.UserId==0 ? 1 : betDto.UserId, // Default to 1 for testing
+                UserId = betDto.UserId == 0 ? 1 : betDto.UserId, // Default to 1 for testing
                 RaceHorseId = betDto.RaceHorseId,
-                BetType     = betDto.BetType,
-                Amount      = betDto.Stake,
-                OddsAtBet   = betDto.Odds,
-                Status      = "Pending"
+                BetType = betDto.BetType,
+                Amount = betDto.Stake,
+                OddsAtBet = betDto.Odds,
+                Status = "Pending"
             };
             _db.Bets.Add(bet);
             await _db.SaveChangesAsync();
 
             var txn = new BetTransaction
             {
-                BetId           = bet.BetId,
-                UserId          = betDto.UserId==0 ? 1 : betDto.UserId, // Default to 1 for testing
+                BetId = bet.BetId,
+                UserId = betDto.UserId == 0 ? 1 : betDto.UserId, // Default to 1 for testing
                 TransactionType = "Debit",
-                Amount          = betDto.Stake,
-                PaymentStatus   = "Success"
+                Amount = betDto.Stake,
+                PaymentStatus = "Success"
             };
             _db.BetTransactions.Add(txn);
             await _db.SaveChangesAsync();
+
+            // Get the race_id from race_horse
+            var raceHorse = await _db.RaceHorses
+                .FirstOrDefaultAsync(rh => rh.RaceHorseId == betDto.RaceHorseId);
+
+            if (raceHorse != null)
+            {
+                // Refresh the materialized view for this race
+                await RefreshRaceSummaryAsync(raceHorse.RaceId);
+            }
 
             await transaction.CommitAsync();
         }
@@ -96,20 +107,20 @@ public class BetRepository:IBetRepository
         {
             bet.Status = bet.BetType switch
             {
-                "WIN"   => bet.RaceHorseId == winnerHorseId ? "Won" : "Lost",
+                "WIN" => bet.RaceHorseId == winnerHorseId ? "Won" : "Lost",
                 "PLACE" => placeHorseIds.Contains(bet.RaceHorseId) ? "Won" : "Lost",
-                _       => "Lost"
+                _ => "Lost"
             };
 
             if (bet.Status == "Won")
             {
                 _db.BetTransactions.Add(new BetTransaction
                 {
-                    BetId           = bet.BetId,
-                    UserId          = bet.UserId,
+                    BetId = bet.BetId,
+                    UserId = bet.UserId,
                     TransactionType = "Credit",
-                    Amount          = bet.Amount * bet.OddsAtBet,
-                    PaymentStatus   = "Success"
+                    Amount = bet.Amount * bet.OddsAtBet,
+                    PaymentStatus = "Success"
                 });
             }
         }
@@ -117,19 +128,46 @@ public class BetRepository:IBetRepository
         await _db.SaveChangesAsync();
     }
 
-// In your betting controller/service
-public async Task<bool> CanPlaceBet(int userId, int raceId)
-{
-    var existingBetsCount = await _db.Bets
-        .Include(b => b.RaceHorse)
-        .Where(b => b.UserId == userId && b.RaceHorse.RaceId == raceId)
-        .CountAsync();
-    
-    if (existingBetsCount >= 3)
+    // In your betting controller/service
+    public async Task<int> GetUserBetsCountForRace(int userId, int raceId)
     {
-        throw new InvalidOperationException("Maximum 3 bets allowed per race");
+        var existingBetsCount = await _db.Bets
+            .Include(b => b.RaceHorse)
+            .Where(b => b.UserId == userId && b.RaceHorse.RaceId == raceId)
+            .CountAsync();
+
+        // if (existingBetsCount >= 3)
+        // {
+        //     throw new InvalidOperationException("Maximum 3 bets allowed per race");
+        // }
+
+        return existingBetsCount;
     }
-    
-    return true;
-}
+
+    private async Task RefreshRaceSummaryAsync(int raceId)
+    {
+        using var conn = _dapper.CreateConnection();
+
+        // Use CONCURRENTLY to avoid locking (requires unique index on the view)
+        // First, ensure you have a unique index on the materialized view:
+        // CREATE UNIQUE INDEX idx_admin_race_summary_bet_id ON trackpulse.admin_race_summary (bet_id);
+
+        await conn.ExecuteAsync("REFRESH MATERIALIZED VIEW CONCURRENTLY trackpulse.admin_race_summary");
+    }
+
+    private async Task UpdateRaceSummaryIncrementalAsync(int raceId)
+    {
+        using var conn = _dapper.CreateConnection();
+
+        // Delete and insert for specific race only (faster for large datasets)
+        const string sql = @"
+        DELETE FROM trackpulse.admin_race_summary 
+        WHERE race_id = @RaceId;
+        
+        INSERT INTO trackpulse.admin_race_summary
+        SELECT * FROM trackpulse.generate_race_summary(@RaceId);
+    ";
+
+        await conn.ExecuteAsync(sql, new { RaceId = raceId });
+    }
 }

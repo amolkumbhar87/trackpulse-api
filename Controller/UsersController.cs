@@ -94,7 +94,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("wallet/balance")]
-    //[Authorize]
+    [Authorize]
     public async Task<IActionResult> GetWalletBalanceAsync()
     {
         var userId = int.Parse(User.FindFirst("uid")!.Value);

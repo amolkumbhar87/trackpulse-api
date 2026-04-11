@@ -1,0 +1,20 @@
+-- ============================================================
+-- Step 5: Refresh schedule (optional — requires pg_cron)
+-- ============================================================
+-- SELECT cron.schedule(
+--     'refresh-race-summary',
+--     '*/5 * * * *',
+--     'REFRESH MATERIALIZED VIEW CONCURRENTLY trackpulse.admin_race_summary'
+-- );
+
+-- ============================================================
+-- Rollback (keep commented — run manually if needed)
+-- ============================================================
+-- DROP FUNCTION IF EXISTS trackpulse.get_horse_users(INT, INT);
+-- DROP FUNCTION IF EXISTS trackpulse.get_race_summary(INT);
+-- DROP FUNCTION IF EXISTS trackpulse.get_day_summary(DATE);
+-- DROP INDEX IF EXISTS trackpulse.idx_ars_bet_id;
+-- DROP INDEX IF EXISTS trackpulse.idx_ars_race_date;
+-- DROP INDEX IF EXISTS trackpulse.idx_ars_race_id;
+-- DROP INDEX IF EXISTS trackpulse.idx_ars_city;
+-- DROP MATERIALIZED VIEW IF EXISTS trackpulse.admin_race_summary;

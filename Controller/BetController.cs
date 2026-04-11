@@ -57,8 +57,8 @@ public class BetController : ControllerBase
     public async Task<IActionResult> GetUserBetsCountForRace([FromQuery] int raceId)
     {
         var userId = int.Parse(User.FindFirst("uid")!.Value);
-        var canPlace = await _betRepository.CanPlaceBet(userId, raceId);
-        return Ok(canPlace);
+        var count = await _betRepository.GetUserBetsCountForRace(userId, raceId);
+        return Ok(count);
     }
 
 

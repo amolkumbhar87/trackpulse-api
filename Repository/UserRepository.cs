@@ -84,6 +84,7 @@ public class UserRepository : IUserRepository
                 UPDATE trackpulse.users 
                 SET wallet_balance = wallet_balance - @Amount 
                 WHERE user_id = @UserId AND wallet_balance >= @Amount";
-        return connection.QuerySingleAsync<bool>(sql, new { UserId = userId, Amount = amount });
+        return connection.ExecuteAsync(sql, new { UserId = userId, Amount = amount })
+        .ContinueWith(task => task.Result > 0);
     }
 }

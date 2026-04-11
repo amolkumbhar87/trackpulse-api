@@ -54,12 +54,14 @@ ORDER BY
                 j.name              AS JockeyName,
                 lo.win_odds         AS WinOdds,
                 lo.place_odds       AS PlaceOdds,
-                rh.position          AS Position
+                rh.position          AS Position,
+                t.name              AS TrainerName
             FROM races r
             JOIN race_days rd    ON rd.race_day_id   = r.race_day_id            
             JOIN race_horses rh  ON rh.race_id        = r.race_id
             JOIN horses h        ON h.horse_id        = rh.horse_id
             LEFT JOIN jockeys j  ON j.jockey_id       = rh.jockey_id
+            LEFT JOIN trainers t  ON t.id              = rh.trainer_id
             LEFT JOIN LATERAL (
                 SELECT win_odds, place_odds
                 FROM odds
@@ -67,7 +69,8 @@ ORDER BY
                 ORDER BY updated_at DESC
                 LIMIT 1
             ) lo ON TRUE
-            WHERE r.race_id=@RaceId";
+            WHERE r.race_id=@RaceId
+            ORDER BY rh.position ASC";
 var result= await conn.QueryAsync<RaceCardDto>(sql, new { RaceId = raceId });
 return result;
     }

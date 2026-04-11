@@ -41,6 +41,7 @@ public static class ServiceCollection
         services.AddScoped<ITrainerRepository, TrainerRepository>();
 
         services.AddScoped(typeof(RaceRepositoryBase<>), typeof(RaceRepositoryBase<>));
+        services.AddScoped<IRaceSummaryRepository, RaceSummaryRepository>();
 
 
     }

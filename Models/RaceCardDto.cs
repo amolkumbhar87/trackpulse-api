@@ -22,4 +22,7 @@ public class RaceCardDto
     public decimal PlaceOdds { get; set; }
 
     public int Position { get; set; }
+
+    public string JockeyName { get; set; }
+    public string TrainerName { get; set; }
 }

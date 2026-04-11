@@ -78,14 +78,15 @@ CREATE TABLE IF NOT EXISTS trackpulse.race_horses (
     race_id INT NOT NULL,
     horse_id INT NOT NULL,
     jockey_id INT,
-    trainer_name VARCHAR(150),
+    trainer_id INT,
     draw_number INT NOT NULL,
     position INT NOT NULL,
     weight NUMERIC(10,2),
     rating INT,
     FOREIGN KEY (race_id) REFERENCES trackpulse.races(race_id),
     FOREIGN KEY (horse_id) REFERENCES trackpulse.horses(horse_id),
-    FOREIGN KEY (jockey_id) REFERENCES trackpulse.jockeys(jockey_id)
+    FOREIGN KEY (jockey_id) REFERENCES trackpulse.jockeys(jockey_id),
+    FOREIGN KEY (trainer_id) REFERENCES trackpulse.trainers(id)
 );
 
 -- ODDS
