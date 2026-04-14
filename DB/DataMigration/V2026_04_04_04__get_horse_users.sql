@@ -8,7 +8,7 @@ RETURNS TABLE (
     odds_at_bet      NUMERIC,
     potential_payout NUMERIC,
     bet_status       VARCHAR,
-    placed_at        TIMESTAMPTZ
+    placed_at        TIMESTAMP
 )
 LANGUAGE plpgsql
 AS $$

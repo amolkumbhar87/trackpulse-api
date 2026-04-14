@@ -8,6 +8,8 @@ public class BetRepository : IBetRepository
 
     private readonly DapperContext _dapper;
 
+    private static DateTime _lastRefresh = DateTime.MinValue;
+
     public BetRepository(AppDbContext db, DapperContext dapper)
     {
         _db = db;
@@ -75,7 +77,7 @@ public class BetRepository : IBetRepository
             if (raceHorse != null)
             {
                 // Refresh the materialized view for this race
-                await RefreshRaceSummaryAsync(raceHorse.RaceId);
+                //await RefreshRaceSummaryAsync(raceHorse.RaceId);
             }
 
             await transaction.CommitAsync();
@@ -144,16 +146,18 @@ public class BetRepository : IBetRepository
         return existingBetsCount;
     }
 
-    private async Task RefreshRaceSummaryAsync(int raceId)
-    {
-        using var conn = _dapper.CreateConnection();
+    // private async Task RefreshRaceSummaryAsync(int raceId)
+    // {
 
-        // Use CONCURRENTLY to avoid locking (requires unique index on the view)
-        // First, ensure you have a unique index on the materialized view:
-        // CREATE UNIQUE INDEX idx_admin_race_summary_bet_id ON trackpulse.admin_race_summary (bet_id);
+    //     if ((DateTime.UtcNow - _lastRefresh).TotalSeconds < 30)
+    //     return;
 
-        await conn.ExecuteAsync("REFRESH MATERIALIZED VIEW CONCURRENTLY trackpulse.admin_race_summary");
-    }
+    // _lastRefresh = DateTime.UtcNow;
+
+    //     using var conn = _dapper.CreateConnection();
+
+    //     await conn.ExecuteAsync("REFRESH MATERIALIZED VIEW CONCURRENTLY trackpulse.admin_race_summary");
+    // }
 
     private async Task UpdateRaceSummaryIncrementalAsync(int raceId)
     {
