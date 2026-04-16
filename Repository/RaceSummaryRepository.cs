@@ -27,14 +27,16 @@ public class RaceSummaryRepository : IRaceSummaryRepository
     // Race drill-down
     public async Task<IEnumerable<RaceSummaryDto>> GetRaceSummaryAsync(int raceId)
     {
-        const string sql = @"SELECT race_horse_id as RaceHorseId, 
+        const string sql = @"SELECT race_name   as RaceName, 
+                            race_horse_id as RaceHorseId,
                             horse_name as HorseName, 
                             draw_number as DrawNumber,
                             Position, 
-                            bet_type as BetType, bet_count as  BetCount, 
-                            total_staked as TotalStaked, total_liability as TotalLiability, result as Result
+                            win_stake as WinStake, win_bet_count as WinBetCount, win_payout as WinPayout,
+                            place_stake as PlaceStake, place_bet_count as PlaceBetCount, place_payout as PlacePayout,
+                            total_stake as TotalStake, total_bets as TotalBets, total_payout as TotalPayout
         
-         FROM trackpulse.get_race_summary(@RaceId)";
+         FROM trackpulse.get_horse_bet_summary(@RaceId)";
         using var conn = _ctx.CreateConnection();
         return await conn.QueryAsync<RaceSummaryDto>(sql, new { RaceId = raceId });
     }
