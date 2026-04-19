@@ -63,7 +63,7 @@ builder.Services.AddRepositories();
 
 builder.Services.JWTAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
-builder.Services.AddHostedService<RaceSummaryRefresher>();
+//builder.Services.AddHostedService<RaceSummaryRefresher>();
 
 var app = builder.Build();
 
