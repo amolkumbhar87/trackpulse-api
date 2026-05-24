@@ -17,8 +17,8 @@ public class UserRepository : IUserRepository
 
     public async Task<User> GetByMobileNumberAsync(string mobileNumber)
     {
-        var users = await _db.Users.ToListAsync();
-        return users.FirstOrDefault(u => u.MobileNumber == mobileNumber);
+       return await _db.Users
+        .FirstOrDefaultAsync(u => u.MobileNumber == mobileNumber);
     }
 
     public async Task<IEnumerable<User>> GetUsersByStatusAsync(string status, string mobileNumber=null)

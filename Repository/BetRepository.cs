@@ -8,7 +8,6 @@ public class BetRepository : IBetRepository
 
     private readonly DapperContext _dapper;
 
-    private static DateTime _lastRefresh = DateTime.MinValue;
 
     public BetRepository(AppDbContext db, DapperContext dapper)
     {
@@ -49,7 +48,7 @@ public class BetRepository : IBetRepository
         {
             var bet = new Bet
             {
-                UserId = betDto.UserId == 0 ? 1 : betDto.UserId, // Default to 1 for testing
+                UserId = betDto.UserId,
                 RaceHorseId = betDto.RaceHorseId,
                 BetType = betDto.BetType,
                 Amount = betDto.Stake,
@@ -62,7 +61,7 @@ public class BetRepository : IBetRepository
             var txn = new BetTransaction
             {
                 BetId = bet.BetId,
-                UserId = betDto.UserId == 0 ? 1 : betDto.UserId, // Default to 1 for testing
+                UserId =  betDto.UserId,
                 TransactionType = "Debit",
                 Amount = betDto.Stake,
                 PaymentStatus = "Success"
